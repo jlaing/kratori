@@ -1,0 +1,14 @@
+For dynamic map generation:
+
+http://www.html5gamedevs.com/topic/2727-dynamic-tilemap-generation/
+
+game.load.tilemap('level', null, generateLevel(), Phaser.Tilemap.CSV );
+
+And generateLevel returns a CSV string looking like this:
+
+"0,0,0,0,0\n1,1,0,0,1\n1,12,0,15,1\n"
+
+
+
+Tiles from
+https://opengameart.org/content/zelda-like-tilesets-and-sprites

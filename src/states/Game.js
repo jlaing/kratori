@@ -1,6 +1,5 @@
 /* globals __DEV__ */
 import Phaser from 'phaser'
-import Mushroom from '../sprites/Mushroom'
 import Spriter from '../sprites/Spriter'
 
 export default class extends Phaser.State {
@@ -17,27 +16,18 @@ export default class extends Phaser.State {
     banner.smoothed = false
     banner.anchor.setTo(0.5)
 
-    this.mushroom = new Mushroom({
-      game: this,
-      x: this.world.centerX,
-      y: this.world.centerY,
-      asset: 'mushroom'
-    })
-
     this.character = new Spriter({
       game: this.game,
       name: 'character',
-      x: 300,
-      y: 300
+      x: this.world.centerX,
+      y: this.world.centerY
     })
-    this.character.playAnimation('all');
-
-    this.game.add.existing(this.mushroom)
+    this.character.playAnimation('all')
   }
 
   render () {
     if (__DEV__) {
-      this.game.debug.spriteInfo(this.mushroom, 32, 32)
+      this.game.debug.spriteInfo(this.character.sprite, 32, 32)
     }
   }
 }

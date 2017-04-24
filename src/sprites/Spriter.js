@@ -41,6 +41,7 @@ export default class Spriter {
     this.sprite = null
 
     this.sprite = this.addSprite()
+    this.sprite.scale.setTo(2)
 
     this.animationsData = this.loadAnimationsData()
     this.animations = this.addAnimations()
@@ -73,7 +74,7 @@ export default class Spriter {
     return animations
   }
 
-  playAnimation(name) {
+  playAnimation (name) {
     this.animations[name].play()
   }
 
