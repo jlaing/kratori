@@ -1,0 +1,166 @@
+[
+  {
+    "name": "all",
+    "frames": [
+      "character1", "character2", "character3", "character4", "character5",
+      "character6", "character7", "character8", "character9", "character10",
+      "character11", "character12", "character13", "character14", "character15",
+      "character16", "character17", "character18", "character19", "character20",
+      "character21", "character22", "character23", "character24", "character25",
+      "character26", "character27", "character28", "character29", "character30",
+      "character31", "character32", "character33", "character34", "character35",
+      "character36", "character37", "character38", "character39", "character40",
+      "character41", "character42", "character43", "character44", "character45",
+      "character46", "character47", "character48", "character49", "character50",
+      "character51", "character52", "character53", "character54", "character55",
+      "character56", "character57", "character58", "character59", "character60",
+      "character61"
+    ],
+    "rate": 1,
+    "loop": true
+  },
+  {
+    "name": "stand_down",
+    "frames": ["character1"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "walk_down",
+    "frames": ["character1", "character2", "character3", "character4"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "pickup_down",
+    "frames": ["character5", "character6", "character7"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_down",
+    "frames": ["character8", "character9", "character10", "character11"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_stand_down",
+    "frames": ["character12"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "stand_right",
+    "frames": ["character13"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "walk_right",
+    "frames": ["character13", "character14", "character15", "character16"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "pickup_right",
+    "frames": ["character17", "character18", "character19"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_right",
+    "frames": ["character20", "character21", "character22", "character23"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_stand_right",
+    "frames": ["character20"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "stand_up",
+    "frames": ["character24"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "walk_up",
+    "frames": ["character24", "character25", "character26", "character27"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "pickup_up",
+    "frames": ["character28", "character29", "character30"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_up",
+    "frames": ["character31", "character32", "character33", "character34"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_stand_up",
+    "frames": ["character31"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "stand_left",
+    "frames": ["character35"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "walk_left",
+    "frames": ["character35", "character36", "character37", "character38"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "pickup_left",
+    "frames": ["character39", "character40", "character41"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_left",
+    "frames": ["character42", "character43", "character44", "character45"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_stand_left",
+    "frames": ["character42"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "swipe_down",
+    "frames": ["character46", "character47", "character48", "character49"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "swipe_up",
+    "frames": ["character50", "character51", "character52", "character53"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "swipe_right",
+    "frames": ["character54", "character55", "character56", "character57"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "swipe_left",
+    "frames": ["character58", "character59", "character60", "character61"],
+    "rate": 5,
+    "loop": true
+  }
+]
