@@ -23,7 +23,7 @@
     "name": "stand_down",
     "frames": ["character1"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "walk_down",
@@ -32,10 +32,16 @@
     "loop": true
   },
   {
+    "name": "run_down",
+    "frames": ["character1", "character2", "character3", "character4"],
+    "rate": 7,
+    "loop": true
+  },
+  {
     "name": "pickup_down",
     "frames": ["character5", "character6", "character7"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "carry_down",
@@ -47,13 +53,13 @@
     "name": "carry_stand_down",
     "frames": ["character12"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "stand_right",
     "frames": ["character13"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "walk_right",
@@ -62,10 +68,16 @@
     "loop": true
   },
   {
+    "name": "run_right",
+    "frames": ["character13", "character14", "character15", "character16"],
+    "rate": 7,
+    "loop": true
+  },
+  {
     "name": "pickup_right",
     "frames": ["character17", "character18", "character19"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "carry_right",
@@ -77,13 +89,13 @@
     "name": "carry_stand_right",
     "frames": ["character20"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "stand_up",
     "frames": ["character24"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "walk_up",
@@ -92,10 +104,16 @@
     "loop": true
   },
   {
+    "name": "run_up",
+    "frames": ["character24", "character25", "character26", "character27"],
+    "rate": 7,
+    "loop": true
+  },
+  {
     "name": "pickup_up",
     "frames": ["character28", "character29", "character30"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "carry_up",
@@ -107,13 +125,13 @@
     "name": "carry_stand_up",
     "frames": ["character31"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "stand_left",
     "frames": ["character35"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "walk_left",
@@ -122,10 +140,16 @@
     "loop": true
   },
   {
+    "name": "run_left",
+    "frames": ["character35", "character36", "character37", "character38"],
+    "rate": 7,
+    "loop": true
+  },
+  {
     "name": "pickup_left",
     "frames": ["character39", "character40", "character41"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "carry_left",
@@ -137,30 +161,30 @@
     "name": "carry_stand_left",
     "frames": ["character42"],
     "rate": 5,
-    "loop": true
+    "loop": false
   },
   {
     "name": "swipe_down",
     "frames": ["character46", "character47", "character48", "character49"],
-    "rate": 5,
-    "loop": true
+    "rate": 10,
+    "loop": false
   },
   {
     "name": "swipe_up",
     "frames": ["character50", "character51", "character52", "character53"],
-    "rate": 5,
-    "loop": true
+    "rate": 10,
+    "loop": false
   },
   {
     "name": "swipe_right",
     "frames": ["character54", "character55", "character56", "character57"],
-    "rate": 5,
-    "loop": true
+    "rate": 10,
+    "loop": false
   },
   {
     "name": "swipe_left",
     "frames": ["character58", "character59", "character60", "character61"],
-    "rate": 5,
-    "loop": true
+    "rate": 10,
+    "loop": false
   }
 ]

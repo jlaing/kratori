@@ -1,0 +1,101 @@
+{
+  "defaultState": "stand_down",
+  "states": {
+    "stand_up": {
+      "sprite": "log",
+      "animation": "stand_up"
+    },
+    "stand_down": {
+      "sprite": "log",
+      "animation": "stand_down"
+    },
+    "stand_right": {
+      "sprite": "log",
+      "animation": "stand_right"
+    },
+    "stand_left": {
+      "sprite": "log",
+      "animation": "stand_left"
+    },
+    "walk_up": {
+      "sprite": "log",
+      "animation": "walk_up"
+    },
+    "walk_down": {
+      "sprite": "log",
+      "animation": "walk_down"
+    },
+    "walk_left": {
+      "sprite": "log",
+      "animation": "walk_left"
+    },
+    "walk_right": {
+      "sprite": "log",
+      "animation": "walk_right"
+    },
+    "run_up": {
+      "sprite": "log",
+      "animation": "run_up"
+    },
+    "run_down": {
+      "sprite": "log",
+      "animation": "run_down"
+    },
+    "run_left": {
+      "sprite": "log",
+      "animation": "run_left"
+    },
+    "run_right": {
+      "sprite": "log",
+      "animation": "run_right"
+    },
+    "pickup_up": {
+      "sprite": "log",
+      "animation": "pickup_up"
+    },
+    "pickup_down": {
+      "sprite": "log",
+      "animation": "pickup_down"
+    },
+    "pickup_right": {
+      "sprite": "log",
+      "animation": "pickup_right"
+    },
+    "pickup_left": {
+      "sprite": "log",
+      "animation": "pickup_left"
+    },
+    "carry_up": {
+      "sprite": "log",
+      "animation": "carry_up"
+    },
+    "carry_down": {
+      "sprite": "log",
+      "animation": "carry_down"
+    },
+    "carry_left": {
+      "sprite": "log",
+      "animation": "carry_left"
+    },
+    "carry_right": {
+      "sprite": "log",
+      "animation": "carry_right"
+    },
+    "attack_up": {
+      "sprite": "log",
+      "animation": "swipe_up"
+    },
+    "attack_down": {
+      "sprite": "log",
+      "animation": "swipe_down"
+    },
+    "attack_right": {
+      "sprite": "log",
+      "animation": "swipe_right"
+    },
+    "attack_left": {
+      "sprite": "log",
+      "animation": "swipe_left"
+    }
+  }
+}

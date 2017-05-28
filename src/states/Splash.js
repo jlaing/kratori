@@ -1,29 +1,25 @@
 import Phaser from 'phaser'
-import { centerGameObjects } from '../utils'
-import Spriter from '../sprites/Spriter'
+import Thing from '../things/Thing'
+
+import config from '../config'
 
 export default class extends Phaser.State {
   init () {}
 
   preload () {
     this.loaderBg = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'loaderBg')
+    this.loaderBg.anchor.setTo(0.5)
     this.loaderBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'loaderBar')
-    centerGameObjects([this.loaderBg, this.loaderBar])
+    this.loaderBar.anchor.setTo(0.5)
 
     this.load.setPreloadSprite(this.loaderBar)
-    //
-    // load your assets
-    //
-    // this.load.atlas('character', 'assets/atlas/character.png', 'assets/atlas/character.json')
-    this.load.image('mushroom', 'assets/images/mushroom2.png')
 
-    Spriter.cache(this.load, 'character')
+    config.load.things.forEach((thing) => {
+      Thing.cacheAssets(this.load, thing)
+    })
   }
 
   create () {
-    // this.game.time.events.add(Phaser.Timer.SECOND * 3, function () {
     this.state.start('Game')
-    // },
-    // this)
   }
 }

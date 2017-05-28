@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "phaser-ce": "^2.7.3",
+    "socket.io": "^1.7.3",
     "webfontloader": "^1.6.27"
   }
 }

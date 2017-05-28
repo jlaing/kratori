@@ -1,0 +1,183 @@
+[
+  {
+    "name": "all",
+    "frames": [
+      "log1", "log2", "log3", "log4",
+      "log7", "log8", "log9", "log10",
+      "log13", "log14", "log15", "log16",
+      "log19", "log20", "log21", "log22",
+      "log5", "log11", "log17", "log13",
+      "log6", "log12", "log18"
+    ],
+    "rate": 2,
+    "loop": true
+  },
+  {
+    "name": "stand_down",
+    "frames": ["log1"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "walk_down",
+    "frames": ["log1", "log2", "log3", "log4"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "run_down",
+    "frames": ["log1", "log2", "log3", "log4"],
+    "rate": 7,
+    "loop": true
+  },
+  {
+    "name": "pickup_down",
+    "frames": ["log1"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "carry_down",
+    "frames": ["log1", "log2", "log3", "log4"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_stand_down",
+    "frames": ["log1"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "stand_right",
+    "frames": ["log13"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "walk_right",
+    "frames": ["log13", "log14", "log15", "log16"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "run_right",
+    "frames": ["log13", "log14", "log15", "log16"],
+    "rate": 7,
+    "loop": true
+  },
+  {
+    "name": "pickup_right",
+    "frames": ["log13"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "carry_right",
+    "frames": ["log13", "log14", "log15", "log16"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_stand_right",
+    "frames": ["log13"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "stand_up",
+    "frames": ["log7"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "walk_up",
+    "frames": ["log7", "log8", "log9", "log10"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "run_up",
+    "frames": ["log7", "log8", "log9", "log10"],
+    "rate": 7,
+    "loop": true
+  },
+  {
+    "name": "pickup_up",
+    "frames": ["log7"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "carry_up",
+    "frames": ["log7", "log8", "log9", "log10"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_stand_up",
+    "frames": ["log7"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "stand_left",
+    "frames": ["log19"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "walk_left",
+    "frames": ["log19", "log20", "log21", "log22"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "run_left",
+    "frames": ["log19", "log20", "log21", "log22"],
+    "rate": 7,
+    "loop": true
+  },
+  {
+    "name": "pickup_left",
+    "frames": ["log19"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "carry_left",
+    "frames": ["log19", "log20", "log21", "log22"],
+    "rate": 5,
+    "loop": true
+  },
+  {
+    "name": "carry_stand_left",
+    "frames": ["log19"],
+    "rate": 5,
+    "loop": false
+  },
+  {
+    "name": "swipe_down",
+    "frames": ["log1"],
+    "rate": 10,
+    "loop": false
+  },
+  {
+    "name": "swipe_up",
+    "frames": ["log7"],
+    "rate": 10,
+    "loop": false
+  },
+  {
+    "name": "swipe_right",
+    "frames": ["log13"],
+    "rate": 10,
+    "loop": false
+  },
+  {
+    "name": "swipe_left",
+    "frames": ["log19"],
+    "rate": 10,
+    "loop": false
+  }
+]

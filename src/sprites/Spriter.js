@@ -34,19 +34,25 @@ export default class Spriter {
     )
   }
 
-  constructor ({ game, name, x, y }) {
+  constructor ({ game, name, group, x, y }) {
     this.game = game
     this.name = name
-    this.startingPoint = [x, y]
+    this.group = group
+    this.x = x
+    this.y = y
     this.sprite = null
 
     this.sprite = this.addSprite()
-    this.sprite.scale.setTo(2)
+    // this.sprite.scale.setTo(2)
+    this.sprite.anchor.x = 0.5
+    this.sprite.anchor.y = 0.7
 
     this.animationsData = this.loadAnimationsData()
     this.animations = this.addAnimations()
 
-    this.game.add.existing(this.sprite)
+    if (!this.group) {
+      this.game.add.existing(this.sprite)
+    }
   }
 
   loadAnimationsData () {
@@ -54,9 +60,16 @@ export default class Spriter {
   }
 
   addSprite () {
+    if (this.group) {
+      return this.group.create(
+        this.x,
+        this.y,
+        this.name
+      )
+    }
     return this.game.add.sprite(
-      this.startingPoint[0],
-      this.startingPoint[1],
+      this.x,
+      this.y,
       this.name
     )
   }
@@ -74,11 +87,30 @@ export default class Spriter {
     return animations
   }
 
-  playAnimation (name) {
+  playAnimation (name, onComplete, onCompleteContext) {
+    if (onComplete !== undefined) {
+      this.animations[name].onComplete.addOnce(onComplete, onCompleteContext)
+    }
     this.animations[name].play()
   }
 
+  reset ({x, y}) {
+    this.x = x
+    this.y = y
+    this.sprite.reset(x, y)
+  }
+
+  kill () {
+    this.sprite.kill()
+  }
+
+  moveTo ({x, y}) {
+    this.x = x
+    this.y = y
+  }
+
   update () {
-    // this.sprite.angle += 1
+    this.sprite.x = this.x
+    this.sprite.y = this.y
   }
 }

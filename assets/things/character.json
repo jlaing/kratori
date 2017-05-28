@@ -1,0 +1,101 @@
+{
+  "defaultState": "stand_down",
+  "states": {
+    "stand_up": {
+      "sprite": "character",
+      "animation": "stand_up"
+    },
+    "stand_down": {
+      "sprite": "character",
+      "animation": "stand_down"
+    },
+    "stand_right": {
+      "sprite": "character",
+      "animation": "stand_right"
+    },
+    "stand_left": {
+      "sprite": "character",
+      "animation": "stand_left"
+    },
+    "walk_up": {
+      "sprite": "character",
+      "animation": "walk_up"
+    },
+    "walk_down": {
+      "sprite": "character",
+      "animation": "walk_down"
+    },
+    "walk_left": {
+      "sprite": "character",
+      "animation": "walk_left"
+    },
+    "walk_right": {
+      "sprite": "character",
+      "animation": "walk_right"
+    },
+    "run_up": {
+      "sprite": "character",
+      "animation": "run_up"
+    },
+    "run_down": {
+      "sprite": "character",
+      "animation": "run_down"
+    },
+    "run_left": {
+      "sprite": "character",
+      "animation": "run_left"
+    },
+    "run_right": {
+      "sprite": "character",
+      "animation": "run_right"
+    },
+    "pickup_up": {
+      "sprite": "character",
+      "animation": "pickup_up"
+    },
+    "pickup_down": {
+      "sprite": "character",
+      "animation": "pickup_down"
+    },
+    "pickup_right": {
+      "sprite": "character",
+      "animation": "pickup_right"
+    },
+    "pickup_left": {
+      "sprite": "character",
+      "animation": "pickup_left"
+    },
+    "carry_up": {
+      "sprite": "character",
+      "animation": "carry_up"
+    },
+    "carry_down": {
+      "sprite": "character",
+      "animation": "carry_down"
+    },
+    "carry_left": {
+      "sprite": "character",
+      "animation": "carry_left"
+    },
+    "carry_right": {
+      "sprite": "character",
+      "animation": "carry_right"
+    },
+    "attack_up": {
+      "sprite": "character",
+      "animation": "swipe_up"
+    },
+    "attack_down": {
+      "sprite": "character",
+      "animation": "swipe_down"
+    },
+    "attack_right": {
+      "sprite": "character",
+      "animation": "swipe_right"
+    },
+    "attack_left": {
+      "sprite": "character",
+      "animation": "swipe_left"
+    }
+  }
+}

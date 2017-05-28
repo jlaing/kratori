@@ -1,5 +1,71 @@
-For dynamic map generation:
+To Do
+-----
+-client update loop
+-client move character
+-server move character around
+-server have state of character
+-on connect send to client
+-client take input
+-client use input to move character around
+-client send input to server
+-server take client input and update state
+-server broadcast to clients the state
+-implement physics for player movement
+  -client physics predict
+  -server physics
+  -server client update
+  -client get update and roll forward
 
+-character walk to mouse, click to swipe, right click to pickup (default interact)
+-other Object
+-character collide with Object
+-Give player and object some stats
+-load map
+-character collide with map
+-monster
+-monster follow and attack character
+-map auto generator
+-monster, thing spawner
+-character can change map
+-multiplayer
+
+-----
+Questions/thoughts
+-----
+physics, game actions
+Will have to be done on the server side in something like Pomelo.
+Keyboard actions can start movement of the action locally and send it to the server
+But results of any actions have to come from server
+So physics needs to be implemented server side
+Most basic way to start is for player input be sent to server and all actions
+are pushed from server to client.
+
+multi player with no cheating:
+server has to calc collision and other actions
+server has to generate map
+keep track of all states, send states to players
+
+how to keep population of single planet managable for server?
+-first just do a hard limit
+-later maybe naturally limitted by food, shelter, guards and keep people out
+-disease, starvation, etc.
+-----
+
+------
+How To
+------
+Make sprites:
+ShoeBox for extracting sprites
+TexturePacker for creating atlas (sprite file and json)
+Then need to define a animations file and things file (both json)
+
+-----
+Resources
+-----
+Some intro blog posts on sprites, maps, etc with phaser
+https://www.programmingmind.com/
+-
+For dynamic map generation:
 http://www.html5gamedevs.com/topic/2727-dynamic-tilemap-generation/
 
 game.load.tilemap('level', null, generateLevel(), Phaser.Tilemap.CSV );
@@ -7,8 +73,91 @@ game.load.tilemap('level', null, generateLevel(), Phaser.Tilemap.CSV );
 And generateLevel returns a CSV string looking like this:
 
 "0,0,0,0,0\n1,1,0,0,1\n1,12,0,15,1\n"
-
-
-
+-
 Tiles from
 https://opengameart.org/content/zelda-like-tilesets-and-sprites
+-
+game art (paid)
+http://www.gameart2d.com/
+-
+game server
+http://pomelo.netease.com/
+-
+game server, hosted and self host (only way to customize game logic)
+photonengine.com
+-
+real-time multiplayer game server / client design
+http://buildnewgames.com/real-time-multiplayer/
+-
+client / server physics
+https://github.com/liabru/matter-js
+-
+on path finding (other articles on site)
+http://www.gabrielgambetta.com/path1.html
+--
+github Game dev with dungeon generator
+https://github.com/BonsaiDen
+-
+free game programming patterns
+http://gameprogrammingpatterns.com/contents.html
+-
+NPC spelling
+https://spellfucker.com/
+-
+
+Ideas:
+-Start out as single player RPG survival
+-Wake up in the woods
+-Can make your own way in forest
+-Or find a village, town, city
+-Fight monsters etc to gain items and XP
+-Level up, learn crafting
+-Can change world with right tools
+-Can hire or attract followers that you can control, RTS style
+-Can build with enough resources
+-If you mess with other people’s buildings and are spotted, town guards (which could be controlled by other players) can find you and kill or capture you
+-If captured get taken to jail or dungeon
+-Money / items / XP possibly taken - followers might abandon you
+
+starting
+-Start with basic set of things
+-You start in your own area, nothing can visit that area until it reaches the
+size of a village. (so if you keep it small you can hang there risk free forever)
+-Or you can leave and journey away to another "planet" once you find the portal
+-It's risky to go to a town before you are well enough equipped etc
+-Traders will randomly come through your area at some point and you can trade
+natural resources for items.
+-You can also explore and fight monsters etc to find items
+
+Morality
+-If you attack another player first you get a black mark of some sort
+-But once a player attacks you, you can attack back
+-Your symbol or name on your followers, gain black mark if they do same
+
+Citizen Ship
+-You can gain citizenship to another player or guild etc
+-Leaders (Mayors, kings, queens) can declare war against others
+-If a player kills a citizen the lord can declare war against that citizen
+-Citizens are free to attack anyone who is a citizen of a leader you are at war with
+
+Towns
+-build walls, and a gate, charge tax to new citizens
+-Charge a property tax
+-Charge a commerce tax
+-Build structures - mills, barracks, keep, library, etc - civ
+-Build siege weapons etc
+-Can build class training centers (armory, mage school, cleric school, thief guild, etc)
+
+-Doing certain actions will call the town guards, and get you taken to prison
+
+Principalities
+-Receive share of taxes in return for military support and protection
+-Kill town mayors that don't give the tax.
+
+High Level Characters
+-Can hack there way into a castle and kill the lord, become the lord or just free the cities
+-Go on quests
+
+Social
+-Let players customize their avatar, maybe buildings
+-Maybe badges over avatars, maybe avatars themselves
