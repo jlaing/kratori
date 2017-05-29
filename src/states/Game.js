@@ -25,6 +25,8 @@ export default class extends Phaser.State {
     this.character = new Character({
       map: this.map,
       name: 'character',
+      x: x,
+      y: y,
       height: 22,
       width: 16
     })
@@ -33,7 +35,7 @@ export default class extends Phaser.State {
     // create a bunch of random moving tree npcs
     // @ TODO use some sort of npc generator for this
     this.logs = []
-    for (let i = 0; i < 40; i++) {
+    /* for (let i = 0; i < 40; i++) {
       let x, y
       do {
         x = Creature.randomRange(0, this.map.getHeight())
@@ -49,7 +51,7 @@ export default class extends Phaser.State {
       })
       this.map.addThing(log)
       this.logs.push(log)
-    }
+    } */
 
     let socket = io('http://localhost:4000')
     socket.on('connect', function () {

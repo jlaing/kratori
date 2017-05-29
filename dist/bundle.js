@@ -3056,6 +3056,9 @@ var Thing = function () {
     // what map tile are we on?
     this.mapX = x;
     this.mapY = y;
+    // what map tile are we going to next?
+    this.mapDestinationX = x;
+    this.mapDestinationY = y;
     // how fast (in pixels) are we moving?
     this.speed = 0;
     // do we block movement onto our map tile?
@@ -3063,10 +3066,6 @@ var Thing = function () {
     // what's our pixel position?
     this.x = map.getPixelX(x);
     this.y = map.getPixelY(y);
-    // where are we going to? (usually the center of another tile)
-    // this is managed by the map moveThing() function
-    this.destinationX = this.x;
-    this.destinationY = this.y;
 
     // how big are we?
     if (height === undefined) {
@@ -3100,15 +3099,35 @@ var Thing = function () {
     value: function getMapY() {
       return this.mapY;
     }
+  }, {
+    key: 'getMapDestinationX',
+    value: function getMapDestinationX() {
+      return this.mapDestinationX;
+    }
+  }, {
+    key: 'getMapDestinationY',
+    value: function getMapDestinationY() {
+      return this.mapDestinationY;
+    }
 
-    // only the map should set this, since it is in charge of
-    // what moves are valid
+    // only the map should call these
 
   }, {
-    key: 'setNewDestination',
-    value: function setNewDestination(destinationX, destinationY) {
-      this.destinationX = destinationX;
-      this.destinationY = destinationY;
+    key: 'setMapDestinationX',
+    value: function setMapDestinationX(newMapX) {
+      this.mapDestinationX = newMapX;
+    }
+    // only the map should call these
+
+  }, {
+    key: 'setMapDestinationY',
+    value: function setMapDestinationY(newMapY) {
+      this.mapDestinationY = newMapY;
+    }
+  }, {
+    key: 'isBlocking',
+    value: function isBlocking() {
+      return this.blocking;
     }
   }, {
     key: 'loadDefinition',
@@ -3194,66 +3213,60 @@ var Thing = function () {
   }, {
     key: 'update',
     value: function update() {
-      if (this.speed > 0 && this.x !== this.destinationX) {
+      var destX = this.map.getPixelX(this.mapDestinationX);
+      var destY = this.map.getPixelY(this.mapDestinationY);
+
+      if (this.speed > 0 && this.x !== destX) {
         // need to move horizontally
-        if (this.destinationX > this.x) {
+        if (destX > this.x) {
           // we are moving right so add speed
           this.x += this.speed;
           // don't go past our destination
-          if (this.x > this.destinationX) {
-            this.x = this.nextX;
+          if (this.x > destX) {
+            this.x = destX;
           }
         } else {
           // we are moving left so subtract speed
           this.x -= this.speed;
           // don't go past our destination
-          if (this.x < this.destinationX) {
-            this.x = this.destinationX;
+          if (this.x < destX) {
+            this.x = destX;
           }
         }
       }
-      if (this.speed > 0 && this.y !== this.destinationY) {
+
+      if (this.speed > 0 && this.y !== destY) {
         // need to move vertically
-        if (this.destinationY > this.y) {
+        if (destY > this.y) {
           // we are moving down so add speed
           this.y += this.speed;
           // don't go past our destination
-          if (this.y > this.destinationY) {
-            this.y = this.destinationY;
+          if (this.y > destY) {
+            this.y = destY;
           }
         } else {
           // we are moving up so subtract speed
           this.y -= this.speed;
           // don't go past our destination
-          if (this.y < this.destinationY) {
-            this.y = this.destinationY;
+          if (this.y < destY) {
+            this.y = destY;
           }
         }
       }
+
       // if we've reached our destination we can stop moving
-      if (this.x === this.destinationX && this.y === this.destinationY) {
+      if (this.x === destX && this.y === destY) {
         this.speed = 0;
+        this.mapX = this.mapDestinationX;
+        this.mapY = this.mapDestinationY;
       }
+
       // update our graphics to new location
       this.spriters[this.currentSprite].moveTo({
         x: this.x,
         y: this.y
       });
       this.spriters[this.currentSprite].update();
-    }
-  }], [{
-    key: 'getSnapDistanceX',
-    value: function getSnapDistanceX(x) {
-      var snapTo = Math.floor(_Defines2.default.mapTileWidth / 2);
-      var distance = (x + snapTo) % _Defines2.default.mapTileWidth;
-      return distance;
-    }
-  }, {
-    key: 'getSnapDistanceY',
-    value: function getSnapDistanceY(y) {
-      var snapTo = Math.floor(_Defines2.default.mapTileHeight / 2);
-      var distance = (y + snapTo) % _Defines2.default.mapTileHeight;
-      return distance;
     }
   }]);
 
@@ -8412,6 +8425,8 @@ var _class = function (_Phaser$State) {
       this.character = new _Character2.default({
         map: this.map,
         name: 'character',
+        x: x,
+        y: y,
         height: 22,
         width: 16
       });
@@ -8420,24 +8435,23 @@ var _class = function (_Phaser$State) {
       // create a bunch of random moving tree npcs
       // @ TODO use some sort of npc generator for this
       this.logs = [];
-      for (var i = 0; i < 40; i++) {
-        var _x = void 0,
-            _y = void 0;
+      /* for (let i = 0; i < 40; i++) {
+        let x, y
         do {
-          _x = _Creature2.default.randomRange(0, this.map.getHeight());
-          _y = _Creature2.default.randomRange(0, this.map.getWidth());
-        } while (this.map.isBlocked(_x, _y));
-        var log = new _Creature2.default({
+          x = Creature.randomRange(0, this.map.getHeight())
+          y = Creature.randomRange(0, this.map.getWidth())
+        } while (this.map.isBlocked(x, y))
+        let log = new Creature({
           map: this.map,
           name: 'log',
-          x: _x,
-          y: _y,
+          x: x,
+          y: y,
           height: 22,
           width: 16
-        });
-        this.map.addThing(log);
-        this.logs.push(log);
-      }
+        })
+        this.map.addThing(log)
+        this.logs.push(log)
+      } */
 
       var socket = (0, _socket2.default)('http://localhost:4000');
       socket.on('connect', function () {
@@ -8726,7 +8740,7 @@ var Character = function (_Thing) {
       if (this.doNext !== null) {
         var next = this.doNext;
         this.doNext = null;
-        this.do(next);
+        this.doAction(next);
       }
     }
   }, {
@@ -8751,7 +8765,7 @@ var Character = function (_Thing) {
         }
       });
 
-      if (this.map.moveThing(this, dx, dy)) {
+      if (this.speed > 0 && this.map.moveThing(this, dx, dy)) {
         if (this.speed >= _Defines2.default.runSpeed) {
           this.doAction('run');
         } else if (this.speed > 0) {
@@ -19716,7 +19730,7 @@ var Map = function () {
     var height = this.getHeight();
     for (var x = 0; x < width; x++) {
       for (var y = 0; y < height; y++) {
-        graphics.drawRect(this.getTileStartX(x), this.getTileStartY(x), _Defines2.default.mapTileWidth, _Defines2.default.mapTileHeight);
+        graphics.drawRect(this.getTileStartX(x), this.getTileStartY(y), _Defines2.default.mapTileWidth, _Defines2.default.mapTileHeight);
       }
     }
 
@@ -19776,31 +19790,124 @@ var Map = function () {
   }, {
     key: 'addThing',
     value: function addThing(thing) {
-      var x = thing.getMapX();
-      var y = thing.getMapY();
+      var x = thing.getMapDestinationX();
+      var y = thing.getMapDestinationY();
+      var tile = this.getTile(x, y, true);
 
-      if (!Array.isArray(this.tiles[x])) {
-        this.tiles[x] = [];
-      }
-      if (!Array.isArray(this.tiles[x][y])) {
-        // each tile is an array of things
-        this.tiles[x][y] = [];
-      }
-      if (this.tiles[x][y].indexOf(thing) === -1) {
+      if (tile.things.indexOf(thing) === -1) {
         // only add if we are not already on this tile
-        this.tiles[x][y].push(thing);
+        if (thing.isBlocking()) {
+          // always put blocking elements at the thingsGroup
+          tile.things.unshift(thing);
+        } else {
+          tile.things.push(thing);
+        }
       }
+    }
+  }, {
+    key: 'getTile',
+    value: function getTile(mapX, mapY) {
+      var createIfNone = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+      if (this.tiles[mapX] === undefined) {
+        if (!createIfNone) {
+          return null;
+        }
+        this.tiles[mapX] = [];
+      }
+      if (this.tiles[mapX][mapY] === undefined || this.tiles[mapX][mapY] === null) {
+        if (!createIfNone) {
+          return null;
+        }
+        this.tiles[mapX][mapY] = { graphics: null, things: [] };
+      }
+      return this.tiles[mapX][mapY];
     }
   }, {
     key: 'isBlocked',
     value: function isBlocked(mapX, mapY) {
-      if (this.tiles[mapX][mapY] === undefined || !Array.isArray(this.tiles[mapX][mapY])) {
+      var tile = this.getTile(mapX, mapY);
+      if (tile === null || tile.things.length === 0) {
         return false;
+      }
+      // if there is a blocking thing it will be at the start of the array
+      return tile.things[0].isBlocking();
+    }
+  }, {
+    key: 'removeThing',
+    value: function removeThing(thing) {
+      var mapX = thing.getMapX();
+      var mapY = thing.getMapY();
+      var tile = this.getTile(mapX, mapY);
+
+      if (tile === null) {
+        // wasn't on map try destination
+        mapX = thing.getMapDestinationX();
+        mapY = thing.getMapDestinationY();
+        tile = this.getTile(mapX, mapY);
+
+        if (tile === null) {
+          // wasn't on the map
+          return;
+        }
+      }
+
+      // fine the thing in the current tile
+      var currentIndex = tile.things.indexOf(thing);
+      if (currentIndex > -1) {
+        tile.things.splice(currentIndex, 1);
+      }
+      if (tile.things.length === 0) {
+        // the tile is empty so let's delete it
+        if (tile.graphics !== null) {
+          // if we had a graphics cause it was a blocking tile, we want to
+          // destroy it also
+          tile.graphics.destroy();
+        }
+        delete this.tiles[mapX][mapY];
       }
     }
   }, {
     key: 'moveThing',
-    value: function moveThing(thing, dx, dy) {}
+    value: function moveThing(thing, dx, dy) {
+      if (dx === 0 && dy === 0) {
+        return false;
+      }
+
+      // where am I moving to?
+      var newMapX = thing.getMapX() + dx;
+      var newMapY = thing.getMapY() + dy;
+
+      if (newMapX === thing.getMapDestinationX() && newMapY === thing.getMapDestinationY()) {
+        // we are already moving to this destination
+        return true;
+      }
+
+      if (newMapX < 0 || newMapX >= this.getWidth() || newMapY < 0 || newMapY >= this.getHeight()) {
+        // out of bounds
+        return false;
+      }
+
+      // is it blocked?
+      if (this.isBlocked(newMapX, newMapY)) {
+        // if it is then just bail and let the caller deal with the fail
+        return false;
+      }
+
+      // remove from old tile
+      this.removeThing(thing);
+
+      // put myself on the new tile
+      // this will start a tween to this new position
+      thing.setMapDestinationX(newMapX);
+      thing.setMapDestinationY(newMapY);
+
+      // and put us on the new tile
+      // this uses the destination
+      this.addThing(thing);
+
+      return true;
+    }
   }, {
     key: 'getThingsGroup',
     value: function getThingsGroup() {
@@ -19809,45 +19916,43 @@ var Map = function () {
   }, {
     key: 'update',
     value: function update() {
-      var _this = this;
-
-      this.things.forEach(function (mapObj) {
-        _this.updateThingTile(mapObj);
-      });
+      var width = this.getWidth();
+      var height = this.getHeight();
+      for (var x = 0; x < width; x++) {
+        for (var y = 0; y < height; y++) {
+          this.updateTile(x, y);
+        }
+      }
 
       this.thingsGroup.sort('y', _phaser2.default.Group.SORT_ASCENDING);
     }
   }, {
-    key: 'updateThingTile',
-    value: function updateThingTile(mapObj) {
-      var x = Math.floor(mapObj.thing.x / _Defines2.default.mapTileWidth);
-      var y = Math.floor(mapObj.thing.y / _Defines2.default.mapTileHeight);
-      if (mapObj.x === null) {
-        mapObj.x = x;
+    key: 'updateTile',
+    value: function updateTile(mapX, mapY) {
+      var tile = this.getTile(mapX, mapY);
+      if (tile === null) {
+        return;
       }
-      if (mapObj.y === null) {
-        mapObj.y = y;
-      }
-      var draw = false;
-      if (mapObj.tileGraphics === null) {
-        mapObj.tileGraphics = this.game.add.graphics(0, 0);
-        this.floorGroup.add(mapObj.tileGraphics);
-        this.setID(mapObj.x, mapObj.y, mapObj.id);
-        draw = true;
-      } else if (x !== mapObj.x || y !== mapObj.y) {
-        if (this.getID(mapObj.x, mapObj.y) === mapObj.id) {
-          this.removeID(mapObj.x, mapObj.y);
+
+      if (tile.things.length === 0 || !tile.things[0].isBlocking()) {
+        if (tile.graphics) {
+          tile.graphics.clear();
         }
-        this.setID(mapObj.x, mapObj.y, mapObj.id);
-        mapObj.tileGraphics.clear();
-        draw = true;
+        return;
       }
-      if (draw) {
-        mapObj.tileGraphics.lineStyle(0.5, 0xFF0000, 0.75);
-        mapObj.tileGraphics.drawRect(x * _Defines2.default.mapTileWidth, y * _Defines2.default.mapTileHeight, 16, 16);
+
+      if (tile.graphics) {
+        // already drawn
+        return;
       }
-      mapObj.x = x;
-      mapObj.y = y;
+
+      tile.graphics = this.game.add.graphics(0, 0);
+
+      this.floorGroup.add(tile.graphics);
+
+      tile.graphics.lineStyle(0.5, 0xFF0000, 0.75);
+
+      tile.graphics.drawRect(this.getTileStartX(mapX), this.getTileStartY(mapY), _Defines2.default.mapTileWidth, _Defines2.default.mapTileHeight);
     }
   }]);
 

@@ -67,7 +67,7 @@ export default class Character extends Thing {
     if (this.doNext !== null) {
       let next = this.doNext
       this.doNext = null
-      this.do(next)
+      this.doAction(next)
     }
   }
 
@@ -91,7 +91,7 @@ export default class Character extends Thing {
       }
     })
 
-    if (this.map.moveThing(this, dx, dy)) {
+    if (this.speed > 0 && this.map.moveThing(this, dx, dy)) {
       if (this.speed >= Defines.runSpeed) {
         this.doAction('run')
       } else if (this.speed > 0) {

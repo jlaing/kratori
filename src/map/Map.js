@@ -18,7 +18,7 @@ export default class Map {
       for (let y = 0; y < height; y++) {
         graphics.drawRect(
           this.getTileStartX(x),
-          this.getTileStartY(x),
+          this.getTileStartY(y),
           Defines.mapTileWidth,
           Defines.mapTileHeight
         )
@@ -62,32 +62,120 @@ export default class Map {
   }
 
   addThing (thing) {
-    let x = thing.getMapX()
-    let y = thing.getMapY()
+    let x = thing.getMapDestinationX()
+    let y = thing.getMapDestinationY()
+    let tile = this.getTile(x, y, true)
 
-    if (!Array.isArray(this.tiles[x])) {
-      this.tiles[x] = []
-    }
-    if (!Array.isArray(this.tiles[x][y])) {
-      // each tile is an array of things
-      this.tiles[x][y] = []
-    }
-    if (this.tiles[x][y].indexOf(thing) === -1) {
+    if (tile.things.indexOf(thing) === -1) {
       // only add if we are not already on this tile
-      this.tiles[x][y].push(thing)
+      if (thing.isBlocking()) {
+        // always put blocking elements at the thingsGroup
+        tile.things.unshift(thing)
+      } else {
+        tile.things.push(thing)
+      }
     }
+  }
+
+  getTile (mapX, mapY, createIfNone = false) {
+    if (this.tiles[mapX] === undefined) {
+      if (!createIfNone) {
+        return null
+      }
+      this.tiles[mapX] = []
+    }
+    if (this.tiles[mapX][mapY] === undefined ||
+      this.tiles[mapX][mapY] === null) {
+      if (!createIfNone) {
+        return null
+      }
+      this.tiles[mapX][mapY] = { graphics: null, things: [] }
+    }
+    return this.tiles[mapX][mapY]
   }
 
   isBlocked (mapX, mapY) {
-    if (this.tiles[mapX][mapY] === undefined ||
-      !Array.isArray(this.tiles[mapX][mapY])) {
+    let tile = this.getTile(mapX, mapY)
+    if (tile === null || tile.things.length === 0) {
       return false
     }
+    // if there is a blocking thing it will be at the start of the array
+    return tile.things[0].isBlocking()
+  }
 
+  removeThing (thing) {
+    let mapX = thing.getMapX()
+    let mapY = thing.getMapY()
+    let tile = this.getTile(mapX, mapY)
+
+    if (tile === null) {
+      // wasn't on map try destination
+      mapX = thing.getMapDestinationX()
+      mapY = thing.getMapDestinationY()
+      tile = this.getTile(mapX, mapY)
+
+      if (tile === null) {
+        // wasn't on the map
+        return
+      }
+    }
+
+    // fine the thing in the current tile
+    let currentIndex = tile.things.indexOf(thing)
+    if (currentIndex > -1) {
+      tile.things.splice(currentIndex, 1)
+    }
+    if (tile.things.length === 0) {
+      // the tile is empty so let's delete it
+      if (tile.graphics !== null) {
+        // if we had a graphics cause it was a blocking tile, we want to
+        // destroy it also
+        tile.graphics.destroy()
+      }
+      delete this.tiles[mapX][mapY]
+    }
   }
 
   moveThing (thing, dx, dy) {
+    if (dx === 0 && dy === 0) {
+      return false
+    }
 
+    // where am I moving to?
+    let newMapX = thing.getMapX() + dx
+    let newMapY = thing.getMapY() + dy
+
+    if (newMapX === thing.getMapDestinationX() &&
+      newMapY === thing.getMapDestinationY()) {
+      // we are already moving to this destination
+      return true
+    }
+
+    if (newMapX < 0 || newMapX >= this.getWidth() ||
+      newMapY < 0 || newMapY >= this.getHeight()) {
+      // out of bounds
+      return false
+    }
+
+    // is it blocked?
+    if (this.isBlocked(newMapX, newMapY)) {
+      // if it is then just bail and let the caller deal with the fail
+      return false
+    }
+
+    // remove from old tile
+    this.removeThing(thing)
+
+    // put myself on the new tile
+    // this will start a tween to this new position
+    thing.setMapDestinationX(newMapX)
+    thing.setMapDestinationY(newMapY)
+
+    // and put us on the new tile
+    // this uses the destination
+    this.addThing(thing)
+
+    return true
   }
 
   getThingsGroup () {
@@ -95,44 +183,47 @@ export default class Map {
   }
 
   update () {
-    this.things.forEach((mapObj) => { this.updateThingTile(mapObj) })
+    let width = this.getWidth()
+    let height = this.getHeight()
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
+        this.updateTile(x, y)
+      }
+    }
 
     this.thingsGroup.sort('y', Phaser.Group.SORT_ASCENDING)
   }
 
-  updateThingTile (mapObj) {
-    let x = Math.floor(mapObj.thing.x / Defines.mapTileWidth)
-    let y = Math.floor(mapObj.thing.y / Defines.mapTileHeight)
-    if (mapObj.x === null) {
-      mapObj.x = x
+  updateTile (mapX, mapY) {
+    let tile = this.getTile(mapX, mapY)
+    if (tile === null) {
+      return
     }
-    if (mapObj.y === null) {
-      mapObj.y = y
-    }
-    let draw = false
-    if (mapObj.tileGraphics === null) {
-      mapObj.tileGraphics = this.game.add.graphics(0, 0)
-      this.floorGroup.add(mapObj.tileGraphics)
-      this.setID(mapObj.x, mapObj.y, mapObj.id)
-      draw = true
-    } else if (x !== mapObj.x || y !== mapObj.y) {
-      if (this.getID(mapObj.x, mapObj.y) === mapObj.id) {
-        this.removeID(mapObj.x, mapObj.y)
+
+    if (tile.things.length === 0 ||
+      !tile.things[0].isBlocking()) {
+      if (tile.graphics) {
+        tile.graphics.clear()
       }
-      this.setID(mapObj.x, mapObj.y, mapObj.id)
-      mapObj.tileGraphics.clear()
-      draw = true
+      return
     }
-    if (draw) {
-      mapObj.tileGraphics.lineStyle(0.5, 0xFF0000, 0.75)
-      mapObj.tileGraphics.drawRect(
-        x * Defines.mapTileWidth,
-        y * Defines.mapTileHeight,
-        16,
-        16
-      )
+
+    if (tile.graphics) {
+      // already drawn
+      return
     }
-    mapObj.x = x
-    mapObj.y = y
+
+    tile.graphics = this.game.add.graphics(0, 0)
+
+    this.floorGroup.add(tile.graphics)
+
+    tile.graphics.lineStyle(0.5, 0xFF0000, 0.75)
+
+    tile.graphics.drawRect(
+      this.getTileStartX(mapX),
+      this.getTileStartY(mapY),
+      Defines.mapTileWidth,
+      Defines.mapTileHeight
+    )
   }
 }

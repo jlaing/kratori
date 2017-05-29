@@ -49,6 +49,9 @@ export default class Thing {
     // what map tile are we on?
     this.mapX = x
     this.mapY = y
+    // what map tile are we going to next?
+    this.mapDestinationX = x
+    this.mapDestinationY = y
     // how fast (in pixels) are we moving?
     this.speed = 0
     // do we block movement onto our map tile?
@@ -56,10 +59,6 @@ export default class Thing {
     // what's our pixel position?
     this.x = map.getPixelX(x)
     this.y = map.getPixelY(y)
-    // where are we going to? (usually the center of another tile)
-    // this is managed by the map moveThing() function
-    this.destinationX = this.x
-    this.destinationY = this.y
 
     // how big are we?
     if (height === undefined) {
@@ -89,12 +88,24 @@ export default class Thing {
   getMapY () {
     return this.mapY
   }
+  getMapDestinationX () {
+    return this.mapDestinationX
+  }
+  getMapDestinationY () {
+    return this.mapDestinationY
+  }
 
-  // only the map should set this, since it is in charge of
-  // what moves are valid
-  setNewDestination (destinationX, destinationY) {
-    this.destinationX = destinationX
-    this.destinationY = destinationY
+  // only the map should call these
+  setMapDestinationX (newMapX) {
+    this.mapDestinationX = newMapX
+  }
+  // only the map should call these
+  setMapDestinationY (newMapY) {
+    this.mapDestinationY = newMapY
+  }
+
+  isBlocking () {
+    return this.blocking
   }
 
   loadDefinition () {
@@ -170,60 +181,56 @@ export default class Thing {
     return this.definition.states[stateName]
   }
 
-  static getSnapDistanceX (x) {
-    let snapTo = Math.floor(Defines.mapTileWidth / 2)
-    let distance = (x + snapTo) % Defines.mapTileWidth
-    return distance
-  }
-
-  static getSnapDistanceY (y) {
-    let snapTo = Math.floor(Defines.mapTileHeight / 2)
-    let distance = (y + snapTo) % Defines.mapTileHeight
-    return distance
-  }
-
   update () {
-    if (this.speed > 0 && this.x !== this.destinationX) {
+    let destX = this.map.getPixelX(this.mapDestinationX)
+    let destY = this.map.getPixelY(this.mapDestinationY)
+
+    if (this.speed > 0 && this.x !== destX) {
       // need to move horizontally
-      if (this.destinationX > this.x) {
+      if (destX > this.x) {
         // we are moving right so add speed
         this.x += this.speed
         // don't go past our destination
-        if (this.x > this.destinationX) {
-          this.x = this.nextX
+        if (this.x > destX) {
+          this.x = destX
         }
       } else {
         // we are moving left so subtract speed
         this.x -= this.speed
         // don't go past our destination
-        if (this.x < this.destinationX) {
-          this.x = this.destinationX
+        if (this.x < destX) {
+          this.x = destX
         }
       }
     }
-    if (this.speed > 0 && this.y !== this.destinationY) {
+
+    if (this.speed > 0 && this.y !== destY) {
       // need to move vertically
-      if (this.destinationY > this.y) {
+      if (destY > this.y) {
         // we are moving down so add speed
         this.y += this.speed
         // don't go past our destination
-        if (this.y > this.destinationY) {
-          this.y = this.destinationY
+        if (this.y > destY) {
+          this.y = destY
         }
       } else {
         // we are moving up so subtract speed
         this.y -= this.speed
         // don't go past our destination
-        if (this.y < this.destinationY) {
-          this.y = this.destinationY
+        if (this.y < destY) {
+          this.y = destY
         }
       }
     }
+
     // if we've reached our destination we can stop moving
-    if (this.x === this.destinationX &&
-        this.y === this.destinationY) {
+    if (this.x === destX &&
+        this.y === destY) {
       this.speed = 0
+      this.mapX = this.mapDestinationX
+      this.mapY = this.mapDestinationY
     }
+
     // update our graphics to new location
     this.spriters[this.currentSprite].moveTo({
       x: this.x,
