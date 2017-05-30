@@ -13,6 +13,35 @@ export default class extends Phaser.State {
   create () {
     this.map = new Map({ game: this.game })
 
+    // @ TODO
+    // Make sounds for actions
+
+    // @ TODO
+    // Make logs attack player, ai action should test if player is near
+
+    // @ TODO
+    // Create drops
+    // when Character kill() called drop random (make it an action)
+
+    // @ TODO
+    // make a player inventory
+    // pick up things automatically that are on current square
+
+    // @ TODO
+    // make map
+
+    // @ TODO
+    // make map blocking
+
+    // @ TODO
+    // make map mutable with drops
+
+    // @ TODO
+    // make so you can click on map to go to location (route finding)
+
+    // @ TODO
+    // make so you can select controlled units in mass and direct
+
     // create our main character
     // @ TODO
     // use some sort of position generator for this
@@ -35,11 +64,11 @@ export default class extends Phaser.State {
     // create a bunch of random moving tree npcs
     // @ TODO use some sort of npc generator for this
     this.logs = []
-    /* for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 40; i++) {
       let x, y
       do {
-        x = Creature.randomRange(0, this.map.getHeight())
-        y = Creature.randomRange(0, this.map.getWidth())
+        x = Creature.randomRange(2, this.map.getHeight() - 3)
+        y = Creature.randomRange(2, this.map.getWidth() - 3)
       } while (this.map.isBlocked(x, y))
       let log = new Creature({
         map: this.map,
@@ -51,7 +80,7 @@ export default class extends Phaser.State {
       })
       this.map.addThing(log)
       this.logs.push(log)
-    } */
+    }
 
     let socket = io('http://localhost:4000')
     socket.on('connect', function () {
@@ -74,33 +103,39 @@ export default class extends Phaser.State {
   }
 
   update () {
-    let walk = false
-    let run = false
-    let dir = []
-    if (this.game.input.keyboard.isDown(Phaser.KeyCode.A)) {
-      dir.push('left')
-    } else if (this.game.input.keyboard.isDown(Phaser.KeyCode.D)) {
-      dir.push('right')
-    }
+    let destX = 0
+    let destY = 0
+    let dir = this.character.getDirection()
     if (this.game.input.keyboard.isDown(Phaser.KeyCode.S)) {
-      dir.push('down')
-    } else if (this.game.input.keyboard.isDown(Phaser.KeyCode.W)) {
-      dir.push('up')
+      destY++
+      dir = 'down'
     }
-    if (dir.length > 0) {
-      this.character.setDirections(dir)
-      walk = true
+    if (this.game.input.keyboard.isDown(Phaser.KeyCode.W)) {
+      destY--
+      dir = 'up'
     }
-    if (walk && this.game.input.keyboard.isDown(Phaser.KeyCode.SHIFT)) {
-      run = true
+    if (this.game.input.keyboard.isDown(Phaser.KeyCode.A)) {
+      destX--
+      dir = 'left'
+    }
+    if (this.game.input.keyboard.isDown(Phaser.KeyCode.D)) {
+      destX++
+      dir = 'right'
+    }
+    if (destX !== 0 || destY !== 0) {
+      if (this.game.input.keyboard.isDown(Phaser.KeyCode.SHIFT)) {
+        this.character.setRun(true)
+      } else {
+        this.character.setRun(false)
+      }
     }
     if (this.game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR)) {
-      this.character.attack(walk | run)
-    } else if (run) {
-      this.character.run()
-    } else if (walk) {
-      this.character.walk()
+      this.character.setAttack(true)
+    } else {
+      this.character.setAttack(false)
     }
+    this.character.setMovement(destX, destY)
+    this.character.setDirection(dir)
 
     this.logs.forEach((log) => {
       // @TODO
@@ -114,10 +149,7 @@ export default class extends Phaser.State {
       // the same as a Character, or maybe the AI is baked into the Character/Creature
       // type of classes
       log.aiAction()
-      log.update()
     })
-
-    this.character.update()
 
     this.map.update()
   }

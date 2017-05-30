@@ -13,26 +13,26 @@ export default class Creature extends Character {
   }
 
   aiAction () {
-    if (this.actionTime < 100) {
+    if (this.actionTime < 50) {
       this.actionTime++
     } else {
       this.actionTime = 0
       let dir = Creature.randomChoice([
-        ['up'],
-        ['down'],
-        ['left'],
-        ['right'],
-        ['left', 'up'],
-        ['left', 'down'],
-        ['right', 'up'],
-        ['right', 'down']
+        [-1, -1],
+        [-1, 0],
+        [-1, 1],
+        [0, -1],
+        [0, 1],
+        [1, -1],
+        [1, 0],
+        [1, 1]
       ])
-      this.setDirections(dir)
+      this.setMovement(dir[0], dir[1])
       if (Creature.randomChance(25)) {
         if (Creature.randomChance(25)) {
-          this.run()
+          this.setRun(true)
         } else {
-          this.walk()
+          this.setRun(false)
         }
       }
     }

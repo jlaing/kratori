@@ -1,9 +1,12 @@
 import Spriter from '../sprites/Spriter'
 import Defines from '../Defines'
+import ThingAvatarName from '../sprites/ThingAvatarName'
 
 /*
 thing.json format
 
+Things can go on the map, so they have set/getMapX,Y and
+set/getMapDestinationX,Y
 */
 
 export default class Thing {
@@ -52,13 +55,12 @@ export default class Thing {
     // what map tile are we going to next?
     this.mapDestinationX = x
     this.mapDestinationY = y
-    // how fast (in pixels) are we moving?
-    this.speed = 0
     // do we block movement onto our map tile?
     this.blocking = false
     // what's our pixel position?
     this.x = map.getPixelX(x)
     this.y = map.getPixelY(y)
+    this.speed = 0
 
     // how big are we?
     if (height === undefined) {
@@ -78,30 +80,84 @@ export default class Thing {
     this.currentSprite = null
     this.currentAnimation = null
 
+    // create a graphics group
+    this.group = this.game.add.group(this.x, this.y, this.game)
+    this.map.getThingsGroup().add(this.group)
+
+    // are we still alive? or should map remove us
+    this.alive = true
+
     // get us started in the right state
     this.setDefaultState()
+
+    // add the avatar name to over over this
+    this.avatarName = new ThingAvatarName(
+      {thing: this, group: this.group, game: this.game}
+    )
   }
 
+  destroy () {
+    // take away our references to these so they will get garbage collected
+    // and then we can get garbage collected to
+    this.avatarName = null
+    this.group.destroy()
+  }
+
+  setX (x) {
+    this.x = x
+  }
+  setY (y) {
+    this.y = y
+  }
+  getX () {
+    return this.x
+  }
+  getY () {
+    return this.y
+  }
+  setSpeed (speed) {
+    this.speed = speed
+  }
+  getSpeed () {
+    return this.speed
+  }
+
+  // base Thing never moves on it's own
+  setMovement (dx, dy) {
+  }
+  getMovementX () {
+    return 0
+  }
+  getMovementY () {
+    return 0
+  }
+  getMovementSpeed () {
+    return 0
+  }
+
+  setMapX (x) {
+    this.mapX = x
+  }
+  setMapY (y) {
+    this.mapY = y
+  }
   getMapX () {
     return this.mapX
   }
   getMapY () {
     return this.mapY
   }
+  setMapDestinationX (x) {
+    this.mapDestinationX = x
+  }
+  setMapDestinationY (y) {
+    this.mapDestinationY = y
+  }
   getMapDestinationX () {
     return this.mapDestinationX
   }
   getMapDestinationY () {
     return this.mapDestinationY
-  }
-
-  // only the map should call these
-  setMapDestinationX (newMapX) {
-    this.mapDestinationX = newMapX
-  }
-  // only the map should call these
-  setMapDestinationY (newMapY) {
-    this.mapDestinationY = newMapY
   }
 
   isBlocking () {
@@ -135,11 +191,7 @@ export default class Thing {
         this.killSpriter(this.currentSprite)
         this.currentAnimation = null
       }
-      if (this.spriters[sprite]) {
-        // spriter exists, just need to bring it back to screen
-        this.resetSpriter(sprite)
-      } else {
-        // spriter is new, need to init it
+      if (!this.spriters[sprite]) {
         this.initSpriter(sprite)
       }
       this.currentSprite = sprite
@@ -150,17 +202,16 @@ export default class Thing {
     this.spriters[sprite] = new Spriter({
       game: this.game,
       name: sprite,
-      group: this.map.getThingsGroup(),
-      x: this.x,
-      y: this.y
+      group: this.group
     })
   }
 
-  resetSpriter (sprite) {
-    this.spriters[sprite].reset({
-      x: this.x,
-      y: this.y
-    })
+  isAlive () {
+    return this.alive
+  }
+
+  kill () {
+    this.alive = false
   }
 
   killSpriter (sprite) {
@@ -182,60 +233,10 @@ export default class Thing {
   }
 
   update () {
-    let destX = this.map.getPixelX(this.mapDestinationX)
-    let destY = this.map.getPixelY(this.mapDestinationY)
-
-    if (this.speed > 0 && this.x !== destX) {
-      // need to move horizontally
-      if (destX > this.x) {
-        // we are moving right so add speed
-        this.x += this.speed
-        // don't go past our destination
-        if (this.x > destX) {
-          this.x = destX
-        }
-      } else {
-        // we are moving left so subtract speed
-        this.x -= this.speed
-        // don't go past our destination
-        if (this.x < destX) {
-          this.x = destX
-        }
-      }
-    }
-
-    if (this.speed > 0 && this.y !== destY) {
-      // need to move vertically
-      if (destY > this.y) {
-        // we are moving down so add speed
-        this.y += this.speed
-        // don't go past our destination
-        if (this.y > destY) {
-          this.y = destY
-        }
-      } else {
-        // we are moving up so subtract speed
-        this.y -= this.speed
-        // don't go past our destination
-        if (this.y < destY) {
-          this.y = destY
-        }
-      }
-    }
-
-    // if we've reached our destination we can stop moving
-    if (this.x === destX &&
-        this.y === destY) {
-      this.speed = 0
-      this.mapX = this.mapDestinationX
-      this.mapY = this.mapDestinationY
-    }
-
     // update our graphics to new location
-    this.spriters[this.currentSprite].moveTo({
-      x: this.x,
-      y: this.y
-    })
-    this.spriters[this.currentSprite].update()
+    this.group.x = this.x
+    this.group.y = this.y
+
+    this.avatarName.update()
   }
 }

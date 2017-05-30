@@ -42,10 +42,16 @@ export default class Map {
   }
 
   getWidth () {
-    return this.getMapXFromPixel(this.game.world.width - 1)
+    if (this._cache_getWidth === undefined) {
+      this._cache_getWidth = this.getMapXFromPixel(this.game.world.width - 1)
+    }
+    return this._cache_getWidth
   }
   getHeight () {
-    return this.getMapYFromPixel(this.game.world.height - 1)
+    if (this._cache_getHeight === undefined) {
+      this._cache_getHeight = this.getMapYFromPixel(this.game.world.height - 1)
+    }
+    return this._cache_getHeight
   }
   getCenterX () {
     return this.getMapXFromPixel(this.game.world.centerX)
@@ -62,8 +68,8 @@ export default class Map {
   }
 
   addThing (thing) {
-    let x = thing.getMapDestinationX()
-    let y = thing.getMapDestinationY()
+    let x = thing.getMapX()
+    let y = thing.getMapY()
     let tile = this.getTile(x, y, true)
 
     if (tile.things.indexOf(thing) === -1) {
@@ -92,6 +98,14 @@ export default class Map {
       this.tiles[mapX][mapY] = { graphics: null, things: [] }
     }
     return this.tiles[mapX][mapY]
+  }
+
+  getThingsAt (mapX, mapY) {
+    let tile = this.getTile(mapX, mapY)
+    if (tile === null) {
+      return null
+    }
+    return tile.things
   }
 
   isBlocked (mapX, mapY) {
@@ -136,46 +150,146 @@ export default class Map {
     }
   }
 
-  moveThing (thing, dx, dy) {
-    if (dx === 0 && dy === 0) {
+  moveThing (thing) {
+    // 1 if there is movement
+    //   a change the destination with the movement
+    //   b we've used the movement so clear it
+    // 2 if destination is same as current location, then just do tween if any
+    //    to snap to current mapX,Y
+    // 3 if the destination is blocked set destination to current position
+    // 4 move the character towards its destination using its speed
+    // 5 update the current map position, moving tiles if nec
+
+    let moveDX = thing.getMovementX()
+    let moveDY = thing.getMovementY()
+    let moveSpeed = thing.getMovementSpeed()
+
+    let mapX = thing.getMapX()
+    let mapY = thing.getMapY()
+
+    // 1 if there is movement
+    //   a change the destination with the movement
+    //   b we've used the movement so clear it
+    if (moveSpeed > 0 && Math.abs(moveDX) + Math.abs(moveDY) > 0) {
+      this.doThingNewDestination(thing, mapX, mapY, moveDX, moveDY)
+    }
+
+    let mapDestX = thing.getMapDestinationX()
+    let mapDestY = thing.getMapDestinationY()
+    let speed = thing.getSpeed()
+
+    if (speed === 0) {
+      // nothing to do cause we have no speed
+      return
+    }
+
+    // 2 if destination is same as current location, then just do tween if any
+    //    to snap to current mapX,Y
+    if (mapDestX === mapX && mapDestY === mapY) {
+      this.doThingMovementTween(thing, speed, mapX, mapY)
+      return
+    }
+
+    // 3 if the destination is blocked set destination to current position
+    if (this.isBlocked(mapDestX, mapDestY)) {
+      thing.setMapDestinationX(mapX)
+      thing.setMapDestinationY(mapY)
+      mapDestX = mapX
+      mapDestY = mapY
+    }
+
+    // 4 move the character towards its destination using its speed
+    // do this in pixels
+    this.doThingMovementTween(thing, speed, mapDestX, mapDestY)
+
+    // 5 update the current map position, moving tiles if nec
+    let newMapX = this.getMapXFromPixel(thing.getX())
+    let newMapY = this.getMapYFromPixel(thing.getY())
+    if (newMapX !== mapX || newMapY !== mapY) {
+      // remove from old tile
+      this.removeThing(thing)
+
+      // put myself on the new tile
+      // this will start a tween to this new position
+      thing.setMapX(newMapX)
+      thing.setMapY(newMapY)
+
+      // and put us on the new tile
+      // this uses the destination
+      this.addThing(thing)
+    }
+  }
+
+  doThingNewDestination (thing, mapX, mapY, moveDX, moveDY) {
+    // get the old movement, maybe none
+    let oldMoveDX = thing.getMapDestinationX() - mapX
+    let oldMoveDY = thing.getMapDestinationY() - mapY
+    // add the new movement to the old
+    // but make it maximum of -1 to 1 (with Math.sign)
+    let adjustedMoveDX = Math.sign(moveDX + oldMoveDX)
+    let adjustedMoveDY = Math.sign(moveDY + oldMoveDY)
+    // there is movement, so we'll use it
+    let possibleMoves = []
+    if (adjustedMoveDX !== moveDX && adjustedMoveDY !== moveDY) {
+      possibleMoves.push([mapX + adjustedMoveDX, mapY + adjustedMoveDY])
+    }
+    if (adjustedMoveDX !== moveDX) {
+      possibleMoves.push([mapX + adjustedMoveDX, mapY + moveDY])
+    }
+    if (adjustedMoveDY !== moveDY) {
+      possibleMoves.push([mapX + moveDX, mapY + adjustedMoveDY])
+    }
+    possibleMoves.push([mapX + moveDX, mapY + moveDY])
+    if (moveDX !== 0) {
+      possibleMoves.push([mapX + moveDX, mapY])
+    }
+    if (moveDY !== 0) {
+      possibleMoves.push([mapX, mapY + moveDY])
+    }
+    // we'll see if we can move to any of possibilities given this vector
+    while (possibleMoves.length > 0) {
+      let move = possibleMoves.pop()
+      if (this.doThingMoveIfCan(thing, move[0], move[1])) {
+        break
+      }
+    }
+    // we've used the movement or are blocked, so take it away
+    thing.clearMovement()
+  }
+
+  doThingMoveIfCan (thing, newMapX, newMapY) {
+    // check to see if it's out of bounds
+    if (newMapX < 0 || newMapY < 0 ||
+        newMapX > this.getWidth() || newMapY > this.getHeight()) {
       return false
     }
-
-    // where am I moving to?
-    let newMapX = thing.getMapX() + dx
-    let newMapY = thing.getMapY() + dy
-
-    if (newMapX === thing.getMapDestinationX() &&
-      newMapY === thing.getMapDestinationY()) {
-      // we are already moving to this destination
-      return true
-    }
-
-    if (newMapX < 0 || newMapX >= this.getWidth() ||
-      newMapY < 0 || newMapY >= this.getHeight()) {
-      // out of bounds
-      return false
-    }
-
-    // is it blocked?
+    // check to see if it's blocked
     if (this.isBlocked(newMapX, newMapY)) {
-      // if it is then just bail and let the caller deal with the fail
       return false
     }
-
-    // remove from old tile
-    this.removeThing(thing)
-
-    // put myself on the new tile
-    // this will start a tween to this new position
     thing.setMapDestinationX(newMapX)
     thing.setMapDestinationY(newMapY)
+    thing.setSpeed(thing.getMovementSpeed())
+  }
 
-    // and put us on the new tile
-    // this uses the destination
-    this.addThing(thing)
-
-    return true
+  doThingMovementTween (thing, speed, mapDestX, mapDestY) {
+    // @ TODO
+    // this is where our speed needs to match the servers speed
+    // we will do this tween here to predict what the server will send back
+    let x = thing.getX()
+    let y = thing.getY()
+    let dx = this.getPixelX(mapDestX) - x
+    let dy = this.getPixelY(mapDestY) - y
+    // make sure we aren't moving faster than our movement speed
+    if (Math.abs(dx) > speed) {
+      dx = speed * Math.sign(dx)
+    }
+    if (Math.abs(dy) > speed) {
+      dy = speed * Math.sign(dy)
+    }
+    // we have our new pixel location
+    thing.setX(x + dx)
+    thing.setY(y + dy)
   }
 
   getThingsGroup () {
@@ -187,6 +301,8 @@ export default class Map {
     let height = this.getHeight()
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
+        // takes care of movement and
+        // will call update on all children Things
         this.updateTile(x, y)
       }
     }
@@ -200,6 +316,25 @@ export default class Map {
       return
     }
 
+    if (tile.things.length === 0) {
+      return
+    }
+    this.drawBlockingTile(tile, mapX, mapY)
+
+    tile.things.forEach((thing) => { this.updateThing(thing, mapX, mapY) })
+  }
+
+  updateThing (thing, mapX, mapY) {
+    if (thing.isAlive()) {
+      this.moveThing(thing)
+      thing.update()
+    } else {
+      this.removeThing(thing)
+      thing.destroy()
+    }
+  }
+
+  drawBlockingTile (tile, mapX, mapY) {
     if (tile.things.length === 0 ||
       !tile.things[0].isBlocking()) {
       if (tile.graphics) {
