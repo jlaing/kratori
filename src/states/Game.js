@@ -14,6 +14,9 @@ export default class extends Phaser.State {
     this.map = new Map({ game: this.game })
 
     // @ TODO
+    // sync map, spawns, movement, actions, kills with server
+
+    // @ TODO
     // Make sounds for actions
 
     // @ TODO
