@@ -34,7 +34,7 @@
   {
     "name": "run_down",
     "frames": ["character1", "character2", "character3", "character4"],
-    "rate": 7,
+    "rate": 10,
     "loop": true
   },
   {
@@ -70,7 +70,7 @@
   {
     "name": "run_right",
     "frames": ["character13", "character14", "character15", "character16"],
-    "rate": 7,
+    "rate": 10,
     "loop": true
   },
   {
@@ -106,7 +106,7 @@
   {
     "name": "run_up",
     "frames": ["character24", "character25", "character26", "character27"],
-    "rate": 7,
+    "rate": 10,
     "loop": true
   },
   {
@@ -142,7 +142,7 @@
   {
     "name": "run_left",
     "frames": ["character35", "character36", "character37", "character38"],
-    "rate": 7,
+    "rate": 10,
     "loop": true
   },
   {

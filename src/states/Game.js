@@ -66,25 +66,6 @@ export default class extends Phaser.State {
     })
     this.map.addThing(this.character)
 
-    // create a bunch of random moving tree npcs
-    // @ TODO use some sort of npc generator for this
-    for (let i = 0; i < 300; i++) {
-      let x, y
-      do {
-        x = Creature.randomRange(2, this.map.getHeight() - 3)
-        y = Creature.randomRange(2, this.map.getWidth() - 3)
-      } while (this.map.isBlocked(x, y))
-      let log = new Creature({
-        map: this.map,
-        name: 'log',
-        x: x,
-        y: y,
-        height: 22,
-        width: 16
-      })
-      this.map.addThing(log)
-    }
-
     let socket = io('http://localhost:4000')
     socket.on('connect', function () {
       console.log('got conected')
@@ -99,6 +80,24 @@ export default class extends Phaser.State {
     socket.on('onlog', function (data) {
       console.log('got log: ' + data.log)
     })
+    socket.on('creature', function (data) {
+      console.log(data)
+      data.creature.forEach((creature) => {
+        console.log('creature received')
+        if (!this.map.isBlocked(creature.x, creature.y)) {
+          let log = new Creature({
+            map: this.map,
+            name: 'log',
+            x: creature.x,
+            y: creature.y,
+            height: 22,
+            width: 16
+          })
+          this.map.addThing(log)
+          console.log('creature added')
+        }
+      }, this)
+    }.bind(this))
     socket.on('onping', function () {
       console.log('got ping')
       socket.send({type: 'pong'})
@@ -110,6 +109,7 @@ export default class extends Phaser.State {
   paused () {
     if (this.stateLoop !== null) {
       this.game.time.events.remove(this.stateLoop)
+      this.stateLoop = null
     }
   }
   resumed () {

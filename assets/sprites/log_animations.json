@@ -27,7 +27,7 @@
   {
     "name": "run_down",
     "frames": ["log1", "log2", "log3", "log4"],
-    "rate": 7,
+    "rate": 10,
     "loop": true
   },
   {
@@ -63,7 +63,7 @@
   {
     "name": "run_right",
     "frames": ["log13", "log14", "log15", "log16"],
-    "rate": 7,
+    "rate": 10,
     "loop": true
   },
   {
@@ -99,7 +99,7 @@
   {
     "name": "run_up",
     "frames": ["log7", "log8", "log9", "log10"],
-    "rate": 7,
+    "rate": 10,
     "loop": true
   },
   {
@@ -135,7 +135,7 @@
   {
     "name": "run_left",
     "frames": ["log19", "log20", "log21", "log22"],
-    "rate": 7,
+    "rate": 10,
     "loop": true
   },
   {

@@ -154,6 +154,12 @@ export default class Character extends Thing {
   }
 
   stateUpdate () {
+    this.avatarLife.stateUpdate()
+
+    super.stateUpdate()
+  }
+
+  graphicsUpdate () {
     let actualDY = this.y - this.lastY
     let actualDX = this.x - this.lastX
 
@@ -171,8 +177,7 @@ export default class Character extends Thing {
       this.attack()
     } else if (actualDY === 0 && actualDX === 0) {
       this.stand()
-    } else if (Math.abs(actualDY) > Defines.walkSpeed ||
-      Math.abs(actualDX) > Defines.walkSpeed) {
+    } else if (this.getSpeed() > Defines.walkSpeed) {
       this.run()
     } else {
       this.walk()
@@ -181,8 +186,6 @@ export default class Character extends Thing {
     this.lastX = this.x
     this.lastY = this.y
 
-    this.avatarLife.stateUpdate()
-
-    super.stateUpdate()
+    super.graphicsUpdate()
   }
 }

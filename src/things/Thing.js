@@ -77,6 +77,8 @@ export default class Thing {
     // load from our JSON
     this.definition = Thing.loadDefinition(this.game, name)
 
+    this.currentState = null
+
     // our sprites / animations
     this.spriters = {}
     this.currentSprite = null
@@ -95,7 +97,7 @@ export default class Thing {
 
     // add the avatar name to over over this
     this.avatarName = new ThingAvatarName(
-      {thing: this, group: this.group, game: this.game}
+      { thing: this, group: this.group, game: this.game }
     )
   }
 
@@ -184,6 +186,10 @@ export default class Thing {
   }
 
   setState (stateName, onComplete, onCompleteContext) {
+    if (this.currentState === stateName) {
+      return
+    }
+
     let state = this.getState(stateName)
 
     if (state === undefined) {
@@ -192,6 +198,7 @@ export default class Thing {
 
     this.setSpriter(state.sprite)
     this.setAnimation(state.animation, onComplete, onCompleteContext)
+    this.currentState = stateName
   }
 
   setSpriter (sprite) {
@@ -246,35 +253,49 @@ export default class Thing {
     this.avatarName.stateUpdate()
   }
 
-  move () {
-    let speed = this.getSpeed()
-    if (speed === 0) {
-      return
-    }
-
-    let x = this.getX()
-    let y = this.getY()
-    let dx = this.getDestinationX() - x
-    let dy = this.getDestinationY() - y
-
-    if (dx === 0 && dy === 0) {
-      return
-    }
-
-    // make sure we aren't moving faster than our movement speed
-    if (Math.abs(dx) > speed) {
-      dx = speed * Math.sign(dx)
-    }
-    if (Math.abs(dy) > speed) {
-      dy = speed * Math.sign(dy)
-    }
-
-    // we have our new pixel location
-    this.setX(x + dx)
-    this.setY(y + dy)
-  }
-
   graphicsUpdate () {
+    let speed = this.getSpeed()
+    if (speed !== 0) {
+      let x = this.getX()
+      let y = this.getY()
+      let destX = this.getDestinationX()
+      let destY = this.getDestinationY()
+      let dx = destX - x
+      let dy = destY - y
+
+      if (dx !== 0 || dy !== 0) {
+        // speed is expressed in map tiles per second
+        // so speed in pixels is mapTileWidth/Height * speed
+        // scale the speed by fractional seconds that has passed since last update
+        let speedX = speed * Defines.mapTileWidth * this.game.time.physicsElapsed
+        let speedY = speed * Defines.mapTileHeight * this.game.time.physicsElapsed
+
+        // make sure we aren't moving faster than our movement speed
+        if (Math.abs(dx) > speedX) {
+          dx = speedX * Math.sign(dx)
+        }
+        if (Math.abs(dy) > speedY) {
+          dy = speedY * Math.sign(dy)
+        }
+
+        // adjust x/y
+        x += dx
+        y += dy
+
+        // if we are within 0.5 px of dest then snap
+        if (Math.abs(destX - x) < 0.5) {
+          x = destX
+        }
+        if (Math.abs(destY - y) < 0.5) {
+          y = destY
+        }
+
+        // we have our new pixel location
+        this.setX(x)
+        this.setY(y)
+      }
+    }
+
     // update our graphics to new location
     this.group.x = this.x
     this.group.y = this.y

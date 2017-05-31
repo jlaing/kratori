@@ -1,6 +1,6 @@
 {
   "defaultState": "stand_down",
-  "startingHealth": 20,
+  "startingHealth": 1,
   "states": {
     "stand_up": {
       "sprite": "log",

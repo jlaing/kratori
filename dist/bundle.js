@@ -2226,9 +2226,9 @@ var Defines = function Defines() {
 
 Defines.mapTileWidth = 16;
 Defines.mapTileHeight = 16;
-Defines.walkSpeed = 0.5;
-Defines.runSpeed = 0.75;
-Defines.attackSpeed = 0.25;
+Defines.walkSpeed = 2;
+Defines.runSpeed = 3;
+Defines.attackSpeed = 1;
 
 exports.default = Defines;
 
@@ -3117,6 +3117,8 @@ var Thing = function () {
     // load from our JSON
     this.definition = Thing.loadDefinition(this.game, name);
 
+    this.currentState = null;
+
     // our sprites / animations
     this.spriters = {};
     this.currentSprite = null;
@@ -3266,6 +3268,10 @@ var Thing = function () {
   }, {
     key: 'setState',
     value: function setState(stateName, onComplete, onCompleteContext) {
+      if (this.currentState === stateName) {
+        return;
+      }
+
       var state = this.getState(stateName);
 
       if (state === undefined) {
@@ -3274,6 +3280,7 @@ var Thing = function () {
 
       this.setSpriter(state.sprite);
       this.setAnimation(state.animation, onComplete, onCompleteContext);
+      this.currentState = stateName;
     }
   }, {
     key: 'setSpriter',
@@ -3335,37 +3342,50 @@ var Thing = function () {
       this.avatarName.stateUpdate();
     }
   }, {
-    key: 'move',
-    value: function move() {
-      var speed = this.getSpeed();
-      if (speed === 0) {
-        return;
-      }
-
-      var x = this.getX();
-      var y = this.getY();
-      var dx = this.getDestinationX() - x;
-      var dy = this.getDestinationY() - y;
-
-      if (dx === 0 && dy === 0) {
-        return;
-      }
-
-      // make sure we aren't moving faster than our movement speed
-      if (Math.abs(dx) > speed) {
-        dx = speed * Math.sign(dx);
-      }
-      if (Math.abs(dy) > speed) {
-        dy = speed * Math.sign(dy);
-      }
-
-      // we have our new pixel location
-      this.setX(x + dx);
-      this.setY(y + dy);
-    }
-  }, {
     key: 'graphicsUpdate',
     value: function graphicsUpdate() {
+      var speed = this.getSpeed();
+      if (speed !== 0) {
+        var x = this.getX();
+        var y = this.getY();
+        var destX = this.getDestinationX();
+        var destY = this.getDestinationY();
+        var dx = destX - x;
+        var dy = destY - y;
+
+        if (dx !== 0 || dy !== 0) {
+          // speed is expressed in map tiles per second
+          // so speed in pixels is mapTileWidth/Height * speed
+          // scale the speed by fractional seconds that has passed since last update
+          var speedX = speed * _Defines2.default.mapTileWidth * this.game.time.physicsElapsed;
+          var speedY = speed * _Defines2.default.mapTileHeight * this.game.time.physicsElapsed;
+
+          // make sure we aren't moving faster than our movement speed
+          if (Math.abs(dx) > speedX) {
+            dx = speedX * Math.sign(dx);
+          }
+          if (Math.abs(dy) > speedY) {
+            dy = speedY * Math.sign(dy);
+          }
+
+          // adjust x/y
+          x += dx;
+          y += dy;
+
+          // if we are within 0.5 px of dest then snap
+          if (Math.abs(destX - x) < 0.5) {
+            x = destX;
+          }
+          if (Math.abs(destY - y) < 0.5) {
+            y = destY;
+          }
+
+          // we have our new pixel location
+          this.setX(x);
+          this.setY(y);
+        }
+      }
+
       // update our graphics to new location
       this.group.x = this.x;
       this.group.y = this.y;
@@ -5438,6 +5458,13 @@ var Character = function (_Thing) {
   }, {
     key: 'stateUpdate',
     value: function stateUpdate() {
+      this.avatarLife.stateUpdate();
+
+      _get(Character.prototype.__proto__ || Object.getPrototypeOf(Character.prototype), 'stateUpdate', this).call(this);
+    }
+  }, {
+    key: 'graphicsUpdate',
+    value: function graphicsUpdate() {
       var actualDY = this.y - this.lastY;
       var actualDX = this.x - this.lastX;
 
@@ -5455,7 +5482,7 @@ var Character = function (_Thing) {
         this.attack();
       } else if (actualDY === 0 && actualDX === 0) {
         this.stand();
-      } else if (Math.abs(actualDY) > _Defines2.default.walkSpeed || Math.abs(actualDX) > _Defines2.default.walkSpeed) {
+      } else if (this.getSpeed() > _Defines2.default.walkSpeed) {
         this.run();
       } else {
         this.walk();
@@ -5464,9 +5491,7 @@ var Character = function (_Thing) {
       this.lastX = this.x;
       this.lastY = this.y;
 
-      this.avatarLife.stateUpdate();
-
-      _get(Character.prototype.__proto__ || Object.getPrototypeOf(Character.prototype), 'stateUpdate', this).call(this);
+      _get(Character.prototype.__proto__ || Object.getPrototypeOf(Character.prototype), 'graphicsUpdate', this).call(this);
     }
   }]);
 
@@ -8291,9 +8316,9 @@ module.exports = yeast;
 /* 144 */
 /* unknown exports provided */
 /* all exports used */
-/*!*********************!*\
-  !*** ./src/main.js ***!
-  \*********************/
+/*!***********************!*\
+  !*** ./src/client.js ***!
+  \***********************/
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8925,7 +8950,6 @@ var Map = function () {
             continue;
           }
           tile.things.forEach(function (thing) {
-            thing.move();
             thing.graphicsUpdate();
           });
         }
@@ -9397,26 +9421,6 @@ var _class = function (_Phaser$State) {
       });
       this.map.addThing(this.character);
 
-      // create a bunch of random moving tree npcs
-      // @ TODO use some sort of npc generator for this
-      for (var i = 0; i < 300; i++) {
-        var _x = void 0,
-            _y = void 0;
-        do {
-          _x = _Creature2.default.randomRange(2, this.map.getHeight() - 3);
-          _y = _Creature2.default.randomRange(2, this.map.getWidth() - 3);
-        } while (this.map.isBlocked(_x, _y));
-        var log = new _Creature2.default({
-          map: this.map,
-          name: 'log',
-          x: _x,
-          y: _y,
-          height: 22,
-          width: 16
-        });
-        this.map.addThing(log);
-      }
-
       var socket = (0, _socket2.default)('http://localhost:4000');
       socket.on('connect', function () {
         console.log('got conected');
@@ -9431,6 +9435,26 @@ var _class = function (_Phaser$State) {
       socket.on('onlog', function (data) {
         console.log('got log: ' + data.log);
       });
+      socket.on('creature', function (data) {
+        var _this2 = this;
+
+        console.log(data);
+        data.creature.forEach(function (creature) {
+          console.log('creature received');
+          if (!_this2.map.isBlocked(creature.x, creature.y)) {
+            var log = new _Creature2.default({
+              map: _this2.map,
+              name: 'log',
+              x: creature.x,
+              y: creature.y,
+              height: 22,
+              width: 16
+            });
+            _this2.map.addThing(log);
+            console.log('creature added');
+          }
+        }, this);
+      }.bind(this));
       socket.on('onping', function () {
         console.log('got ping');
         socket.send({ type: 'pong' });
@@ -9443,6 +9467,7 @@ var _class = function (_Phaser$State) {
     value: function paused() {
       if (this.stateLoop !== null) {
         this.game.time.events.remove(this.stateLoop);
+        this.stateLoop = null;
       }
     }
   }, {
@@ -9653,27 +9678,36 @@ var Creature = function (_Character) {
     // current action time
     var _this = _possibleConstructorReturn(this, (Creature.__proto__ || Object.getPrototypeOf(Creature)).call(this, { map: map, name: name, x: x, y: y, height: height, width: width }));
 
-    _this.actionTime = Creature.randomRange(0, 10);
+    _this.actionTime = Creature.randomRange(0, 100);
+    // current action
+    _this.actionMovementDirX = 0;
+    _this.actionMovementDirY = 0;
+    _this.actionRun = false;
     return _this;
   }
 
   _createClass(Creature, [{
     key: 'stateUpdate',
     value: function stateUpdate() {
-      if (this.actionTime < 10) {
-        this.actionTime++;
+      if (this.actionTime < 100) {
+        this.actionTime += Creature.randomRange(0, 30);
       } else {
         this.actionTime = 0;
-        var dir = Creature.randomChoice([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
-        this.setMovement(dir[0], dir[1]);
-        if (Creature.randomChance(25)) {
-          if (Creature.randomChance(25)) {
-            this.setRun(true);
+        if (Creature.randomChance(10)) {
+          var dir = Creature.randomChoice([[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]);
+          if (Creature.randomChance(50)) {
+            this.actionMovementDirX = dir[0];
+            this.actionMovementDirY = dir[1];
           } else {
-            this.setRun(false);
+            this.actionMovementDirX = 0;
+            this.actionMovementDirY = 0;
           }
         }
+        this.actionRun = Creature.randomChance(50);
       }
+
+      this.setMovement(this.actionMovementDirX, this.actionMovementDirY);
+      this.setRun(this.actionRun);
 
       _get(Creature.prototype.__proto__ || Object.getPrototypeOf(Creature.prototype), 'stateUpdate', this).call(this);
     }
@@ -20458,13 +20492,13 @@ module.exports = __webpack_amd_options__;
 /* 374 */
 /* unknown exports provided */
 /* all exports used */
-/*!******************************************!*\
-  !*** multi babel-polyfill ./src/main.js ***!
-  \******************************************/
+/*!********************************************!*\
+  !*** multi babel-polyfill ./src/client.js ***!
+  \********************************************/
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(/*! babel-polyfill */145);
-module.exports = __webpack_require__(/*! /Users/jlaing/Desktop/phaser/velda/code/src/main.js */144);
+module.exports = __webpack_require__(/*! /Users/jlaing/Desktop/phaser/velda/code/src/client.js */144);
 
 
 /***/ })

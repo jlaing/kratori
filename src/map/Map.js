@@ -303,7 +303,6 @@ export default class Map {
           continue
         }
         tile.things.forEach((thing) => {
-          thing.move()
           thing.graphicsUpdate()
         })
       }
