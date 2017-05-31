@@ -149,7 +149,7 @@
 /******/ 	__webpack_require__.oe = function(err) { console.error(err); throw err; };
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 372);
+/******/ 	return __webpack_require__(__webpack_require__.s = 375);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -162,7 +162,7 @@
   \******************************************/
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["PIXI"] = __webpack_require__(/*! -!./pixi.js */ 357);
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["PIXI"] = __webpack_require__(/*! -!./pixi.js */ 360);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../../webpack/buildin/global.js */ 8)))
 
 /***/ }),
@@ -175,7 +175,7 @@
   \****************************************/
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["p2"] = __webpack_require__(/*! -!./p2.js */ 355);
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["p2"] = __webpack_require__(/*! -!./p2.js */ 358);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../../webpack/buildin/global.js */ 8)))
 
 /***/ }),
@@ -211,7 +211,7 @@ g,0<d.length&&(d=Ba[d[0]])&&(a.c[e]=d))}a.c[e]||(d=Ba[e])&&(a.c[e]=d);for(d=0;d<
 
 /***/ }),
 
-/***/ 355:
+/***/ 358:
 /* unknown exports provided */
 /* all exports used */
 /*!****************************************!*\
@@ -13860,7 +13860,7 @@ World.prototype.raycast = function(result, ray){
 
 /***/ }),
 
-/***/ 356:
+/***/ 359:
 /* unknown exports provided */
 /* all exports used */
 /*!**************************************************!*\
@@ -97663,7 +97663,7 @@ PIXI.TextureSilentFail = true;
 
 /***/ }),
 
-/***/ 357:
+/***/ 360:
 /* unknown exports provided */
 /* all exports used */
 /*!******************************************!*\
@@ -105181,7 +105181,7 @@ PIXI.TextureUvs = function()
 
 /***/ }),
 
-/***/ 372:
+/***/ 375:
 /* unknown exports provided */
 /* all exports used */
 /*!******************************************!*\
@@ -105205,7 +105205,7 @@ module.exports = __webpack_require__(/*! webfontloader */146);
   \**************************************************/
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(/*! -!./phaser-split.js */ 356);
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(/*! -!./phaser-split.js */ 359);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./../../../webpack/buildin/global.js */ 8)))
 
 /***/ }),

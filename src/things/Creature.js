@@ -9,11 +9,11 @@ export default class Creature extends Character {
   constructor ({ map, name, x, y, height, width }) {
     super({ map, name, x, y, height, width })
     // current action time
-    this.actionTime = Creature.randomRange(0, 100)
+    this.actionTime = Creature.randomRange(0, 10)
   }
 
-  aiAction () {
-    if (this.actionTime < 50) {
+  stateUpdate () {
+    if (this.actionTime < 10) {
       this.actionTime++
     } else {
       this.actionTime = 0
@@ -36,6 +36,8 @@ export default class Creature extends Character {
         }
       }
     }
+
+    super.stateUpdate()
   }
 
   static randomChance (prob) {

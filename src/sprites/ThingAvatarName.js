@@ -13,6 +13,6 @@ export default class ThingAvatarName {
     group.add(this.text)
   }
 
-  update () {
+  stateUpdate () {
   }
 }

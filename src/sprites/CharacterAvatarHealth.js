@@ -14,7 +14,7 @@ export default class CharacterAvatarHealth {
     group.add(this.text)
   }
 
-  update () {
+  stateUpdate () {
     this.text.text = String(this.character.health)
   }
 }

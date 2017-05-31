@@ -8,7 +8,9 @@ import io from 'socket.io-client'
 
 export default class extends Phaser.State {
   init () {}
-  preload () {}
+  preload () {
+    this.game.time.advancedTiming = true
+  }
 
   create () {
     this.map = new Map({ game: this.game })
@@ -66,8 +68,7 @@ export default class extends Phaser.State {
 
     // create a bunch of random moving tree npcs
     // @ TODO use some sort of npc generator for this
-    this.logs = []
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 300; i++) {
       let x, y
       do {
         x = Creature.randomRange(2, this.map.getHeight() - 3)
@@ -82,7 +83,6 @@ export default class extends Phaser.State {
         width: 16
       })
       this.map.addThing(log)
-      this.logs.push(log)
     }
 
     let socket = io('http://localhost:4000')
@@ -103,9 +103,34 @@ export default class extends Phaser.State {
       console.log('got ping')
       socket.send({type: 'pong'})
     })
+
+    this.stateLoop = null
+  }
+
+  paused () {
+    if (this.stateLoop !== null) {
+      this.game.time.events.remove(this.stateLoop)
+    }
+  }
+  resumed () {
+    if (this.stateLoop === null) {
+      this.startStateLoop()
+    }
+  }
+
+  startStateLoop () {
+    this.stateLoop = this.game.time.events.loop(100, this.stateUpdate, this)
+  }
+
+  stateUpdate () {
+    this.map.stateUpdate()
   }
 
   update () {
+    if (this.stateLoop === null) {
+      this.startStateLoop()
+    }
+
     let destX = 0
     let destY = 0
     let dir = this.character.getDirection()
@@ -140,21 +165,7 @@ export default class extends Phaser.State {
     this.character.setMovement(destX, destY)
     this.character.setDirection(dir)
 
-    this.logs.forEach((log) => {
-      // @TODO
-      // refactor this to use some sort of AI agent that generates actions
-      // similar to the keyboard actions above, then we can just loop through
-      // all actors and use their 'agent' to generate actions
-      // main loop can just call getNextAction() from each agent
-      // we can bind a keyboard agent to the player character
-      // and we can bind an AI agent to each npc
-      // at that point we may not need the Creature type, since it's basically
-      // the same as a Character, or maybe the AI is baked into the Character/Creature
-      // type of classes
-      log.aiAction()
-    })
-
-    this.map.update()
+    this.map.graphicsUpdate()
   }
 
   render () {
@@ -163,9 +174,8 @@ export default class extends Phaser.State {
       let x = Math.floor((this.character.x / Defines.mapTileWidth))
       let y = Math.floor((this.character.y / Defines.mapTileHeight))
       this.game.debug.text('Character: tile x,y = ' +
-        String(x) + ', ' + String(y) + ' ' +
-        'Character: x,y = ' +
-        String(this.character.x) + ', ' + String(this.character.y)
+        String(x) + ', ' + String(y) +
+        ' fps: ' + this.game.time.fps
       , 10, 20)
     }
   }

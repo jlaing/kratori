@@ -153,7 +153,7 @@ export default class Character extends Thing {
     }
   }
 
-  update () {
+  stateUpdate () {
     let actualDY = this.y - this.lastY
     let actualDX = this.x - this.lastX
 
@@ -181,8 +181,8 @@ export default class Character extends Thing {
     this.lastX = this.x
     this.lastY = this.y
 
-    this.avatarLife.update()
+    this.avatarLife.stateUpdate()
 
-    super.update()
+    super.stateUpdate()
   }
 }

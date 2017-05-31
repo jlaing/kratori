@@ -60,6 +60,8 @@ export default class Thing {
     // what's our pixel position?
     this.x = map.getPixelX(x)
     this.y = map.getPixelY(y)
+    this.destinationX = this.x
+    this.destinationY = this.y
     this.speed = 0
 
     // how big are we?
@@ -82,6 +84,7 @@ export default class Thing {
 
     // create a graphics group
     this.group = this.game.add.group(this.x, this.y, this.game)
+
     this.map.getThingsGroup().add(this.group)
 
     // are we still alive? or should map remove us
@@ -114,6 +117,12 @@ export default class Thing {
   }
   getY () {
     return this.y
+  }
+  getDestinationX () {
+    return this.destinationX
+  }
+  getDestinationY () {
+    return this.destinationY
   }
   setSpeed (speed) {
     this.speed = speed
@@ -149,9 +158,11 @@ export default class Thing {
   }
   setMapDestinationX (x) {
     this.mapDestinationX = x
+    this.destinationX = this.map.getPixelX(x)
   }
   setMapDestinationY (y) {
     this.mapDestinationY = y
+    this.destinationY = this.map.getPixelY(y)
   }
   getMapDestinationX () {
     return this.mapDestinationX
@@ -176,7 +187,6 @@ export default class Thing {
     let state = this.getState(stateName)
 
     if (state === undefined) {
-      console.log(stateName + ' state not found in ' + this.name)
       return
     }
 
@@ -232,11 +242,41 @@ export default class Thing {
     return this.definition.states[stateName]
   }
 
-  update () {
+  stateUpdate () {
+    this.avatarName.stateUpdate()
+  }
+
+  move () {
+    let speed = this.getSpeed()
+    if (speed === 0) {
+      return
+    }
+
+    let x = this.getX()
+    let y = this.getY()
+    let dx = this.getDestinationX() - x
+    let dy = this.getDestinationY() - y
+
+    if (dx === 0 && dy === 0) {
+      return
+    }
+
+    // make sure we aren't moving faster than our movement speed
+    if (Math.abs(dx) > speed) {
+      dx = speed * Math.sign(dx)
+    }
+    if (Math.abs(dy) > speed) {
+      dy = speed * Math.sign(dy)
+    }
+
+    // we have our new pixel location
+    this.setX(x + dx)
+    this.setY(y + dy)
+  }
+
+  graphicsUpdate () {
     // update our graphics to new location
     this.group.x = this.x
     this.group.y = this.y
-
-    this.avatarName.update()
   }
 }

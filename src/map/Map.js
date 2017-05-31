@@ -75,12 +75,14 @@ export default class Map {
     if (tile.things.indexOf(thing) === -1) {
       // only add if we are not already on this tile
       if (thing.isBlocking()) {
-        // always put blocking elements at the thingsGroup
+        // always put blocking elements at the front
         tile.things.unshift(thing)
       } else {
         tile.things.push(thing)
       }
     }
+
+    this.addTileGraphic(tile, x, y)
   }
 
   getTile (mapX, mapY, createIfNone = false) {
@@ -123,18 +125,10 @@ export default class Map {
     let tile = this.getTile(mapX, mapY)
 
     if (tile === null) {
-      // wasn't on map try destination
-      mapX = thing.getMapDestinationX()
-      mapY = thing.getMapDestinationY()
-      tile = this.getTile(mapX, mapY)
-
-      if (tile === null) {
-        // wasn't on the map
-        return
-      }
+      return
     }
 
-    // fine the thing in the current tile
+    // find the thing in the current tile
     let currentIndex = tile.things.indexOf(thing)
     if (currentIndex > -1) {
       tile.things.splice(currentIndex, 1)
@@ -148,17 +142,25 @@ export default class Map {
       }
       delete this.tiles[mapX][mapY]
     }
+
+    this.removeTileGraphic(tile)
   }
 
-  moveThing (thing) {
+  updateStateThing (thing) {
+    if (!thing.isAlive()) {
+      this.removeThing(thing)
+      thing.destroy()
+      return
+    }
+    thing.stateUpdate()
+
     // 1 if there is movement
     //   a change the destination with the movement
     //   b we've used the movement so clear it
-    // 2 if destination is same as current location, then just do tween if any
-    //    to snap to current mapX,Y
+    // 2 if destination is same as current location, then we are done
     // 3 if the destination is blocked set destination to current position
-    // 4 move the character towards its destination using its speed
-    // 5 update the current map position, moving tiles if nec
+    // note: actual movement happens in the grapics update
+    // 4 update the current map position, moving tiles if nec
 
     let moveDX = thing.getMovementX()
     let moveDY = thing.getMovementY()
@@ -186,7 +188,6 @@ export default class Map {
     // 2 if destination is same as current location, then just do tween if any
     //    to snap to current mapX,Y
     if (mapDestX === mapX && mapDestY === mapY) {
-      this.doThingMovementTween(thing, speed, mapX, mapY)
       return
     }
 
@@ -198,11 +199,7 @@ export default class Map {
       mapDestY = mapY
     }
 
-    // 4 move the character towards its destination using its speed
-    // do this in pixels
-    this.doThingMovementTween(thing, speed, mapDestX, mapDestY)
-
-    // 5 update the current map position, moving tiles if nec
+    // 4 update the current map position, moving tiles if nec
     let newMapX = this.getMapXFromPixel(thing.getX())
     let newMapY = this.getMapYFromPixel(thing.getY())
     if (newMapX !== mapX || newMapY !== mapY) {
@@ -249,7 +246,7 @@ export default class Map {
     // we'll see if we can move to any of possibilities given this vector
     while (possibleMoves.length > 0) {
       let move = possibleMoves.pop()
-      if (this.doThingMoveIfCan(thing, move[0], move[1])) {
+      if (this.doThingSetNewDestinationIfCan(thing, move[0], move[1])) {
         break
       }
     }
@@ -257,10 +254,10 @@ export default class Map {
     thing.clearMovement()
   }
 
-  doThingMoveIfCan (thing, newMapX, newMapY) {
+  doThingSetNewDestinationIfCan (thing, newMapX, newMapY) {
     // check to see if it's out of bounds
     if (newMapX < 0 || newMapY < 0 ||
-        newMapX > this.getWidth() || newMapY > this.getHeight()) {
+        newMapX >= this.getWidth() || newMapY >= this.getHeight()) {
       return false
     }
     // check to see if it's blocked
@@ -272,82 +269,68 @@ export default class Map {
     thing.setSpeed(thing.getMovementSpeed())
   }
 
-  doThingMovementTween (thing, speed, mapDestX, mapDestY) {
-    // @ TODO
-    // this is where our speed needs to match the servers speed
-    // we will do this tween here to predict what the server will send back
-    let x = thing.getX()
-    let y = thing.getY()
-    let dx = this.getPixelX(mapDestX) - x
-    let dy = this.getPixelY(mapDestY) - y
-    // make sure we aren't moving faster than our movement speed
-    if (Math.abs(dx) > speed) {
-      dx = speed * Math.sign(dx)
-    }
-    if (Math.abs(dy) > speed) {
-      dy = speed * Math.sign(dy)
-    }
-    // we have our new pixel location
-    thing.setX(x + dx)
-    thing.setY(y + dy)
-  }
-
-  getThingsGroup () {
-    return this.thingsGroup
-  }
-
-  update () {
+  stateUpdate () {
     let width = this.getWidth()
     let height = this.getHeight()
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
         // takes care of movement and
         // will call update on all children Things
-        this.updateTile(x, y)
+        let tile = this.getTile(x, y)
+        if (tile === null) {
+          continue
+        }
+        if (tile.things.length === 0) {
+          continue
+        }
+        tile.things.forEach((thing) => { this.updateStateThing(thing) })
+      }
+    }
+  }
+
+  graphicsUpdate () {
+    let width = this.getWidth()
+    let height = this.getHeight()
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
+        // takes care of movement and
+        // will call update on all children Things
+        let tile = this.getTile(x, y)
+        if (tile === null) {
+          continue
+        }
+        if (tile.things.length === 0) {
+          continue
+        }
+        tile.things.forEach((thing) => {
+          thing.move()
+          thing.graphicsUpdate()
+        })
       }
     }
 
     this.thingsGroup.sort('y', Phaser.Group.SORT_ASCENDING)
   }
 
-  updateTile (mapX, mapY) {
-    let tile = this.getTile(mapX, mapY)
-    if (tile === null) {
-      return
-    }
-
-    if (tile.things.length === 0) {
-      return
-    }
-    this.drawBlockingTile(tile, mapX, mapY)
-
-    tile.things.forEach((thing) => { this.updateThing(thing, mapX, mapY) })
+  getThingsGroup () {
+    return this.thingsGroup
   }
 
-  updateThing (thing, mapX, mapY) {
-    if (thing.isAlive()) {
-      this.moveThing(thing)
-      thing.update()
-    } else {
-      this.removeThing(thing)
-      thing.destroy()
+  removeTileGraphic (tile) {
+    if (tile.things.length > 0 &&
+      tile.things[0].isBlocking()) {
+      return // it's still blocking so leave the graphic
     }
-  }
-
-  drawBlockingTile (tile, mapX, mapY) {
-    if (tile.things.length === 0 ||
-      !tile.things[0].isBlocking()) {
-      if (tile.graphics) {
-        tile.graphics.clear()
-      }
-      return
-    }
-
     if (tile.graphics) {
-      // already drawn
+      tile.graphics.clear()
+    }
+  }
+
+  addTileGraphic (tile, mapX, mapY) {
+    if (tile.graphics) {
+      // already exists
       return
     }
-
     tile.graphics = this.game.add.graphics(0, 0)
 
     this.floorGroup.add(tile.graphics)
