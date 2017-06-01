@@ -1,4 +1,6 @@
-var path = require('path')
+import path from 'path'
+import Main from './server/Main.js'
+
 var app = require('express')()
 var http = require('http').Server(app)
 var io = require('socket.io')(http)
@@ -21,30 +23,9 @@ io.configure(function (){
 });
 */
 
-io.on('connection', function (socket) {
-  console.log('a user connected')
-
-  socket.emit('onlog', { log: 'Ready for message test.' })
-  var lagTestTime = new Date().getTime()
-  socket.emit('onping')
-
-  socket.on('message', function (m) {
-    if (m.log !== undefined) {
-      console.log('received log message:')
-      console.log(m.log)
-    }
-    if (m.type !== undefined) {
-      switch (m.type) {
-        case 'pong':
-          console.log('time diff: ' + ((new Date().getTime()) - lagTestTime))
-          break
-      }
-    }
-  })
-
-  socket.emit('creature', { creature: [{ x: 15, y: 15 }, { x: 6, y: 6 }] })
-})
-
 http.listen(4000, function () {
   console.log('listening on *:4000')
 })
+
+let main = new Main(io)
+main.init()

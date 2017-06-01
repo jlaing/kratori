@@ -9031,7 +9031,7 @@ var CharacterAvatarHealth = function () {
 
     this.character = character;
     this.group = group;
-    this.text = game.add.text(0, -14, String(character.health), style);
+    this.text = game.add.text(0, -18, String(character.health), style);
     this.text.anchor.set(0.5);
     group.add(this.text);
   }
@@ -9206,7 +9206,7 @@ var ThingAvatarName = function () {
     };
 
     this.group = group;
-    this.text = game.add.text(0, -22, thing.name, style);
+    this.text = game.add.text(0, -30, thing.name, style);
     this.text.anchor.set(0.5);
     group.add(this.text);
   }

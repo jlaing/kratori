@@ -8,7 +8,7 @@ export default class ThingAvatarMeta {
     }
 
     this.group = group
-    this.text = game.add.text(0, -30, text, style)
+    this.text = game.add.text(0, -40, text, style)
     this.text.anchor.set(0.5)
     group.add(this.text)
   }
