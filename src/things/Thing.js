@@ -1,6 +1,6 @@
 import Spriter from '../graphics/Spriter'
 import Defines from '../Defines'
-import ThingAvatarName from '../graphics/ThingAvatarName'
+import EventsSubPub from '../Utils/EventsSubPub'
 
 /*
 thing.json format
@@ -49,6 +49,8 @@ export default class Thing {
     this.map = map
     this.game = map.game
     this.name = name
+    this.thingType = 'thing'
+    this.events = new EventsSubPub()
     // what map tile are we on?
     this.mapX = x
     this.mapY = y
@@ -94,18 +96,17 @@ export default class Thing {
 
     // get us started in the right state
     this.setDefaultState()
+  }
 
-    // add the avatar name to over over this
-    this.avatarName = new ThingAvatarName(
-      { thing: this, group: this.group, game: this.game }
-    )
+  getEvents () {
+    return this.events
   }
 
   destroy () {
     // take away our references to these so they will get garbage collected
     // and then we can get garbage collected to
-    this.avatarName = null
     this.group.destroy()
+    this.events.fire('destroy', this)
   }
 
   setX (x) {
@@ -250,7 +251,7 @@ export default class Thing {
   }
 
   stateUpdate () {
-    this.avatarName.stateUpdate()
+    this.events.fire('stateUpdate', this)
   }
 
   graphicsUpdate () {

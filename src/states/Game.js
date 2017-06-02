@@ -4,6 +4,8 @@ import Character from '../things/Character'
 import Creature from '../things/Creature'
 import Defines from '../Defines'
 import Map from '../map/Map'
+import MapRender from '../graphics/MapRender'
+import ThingRender from '../graphics/ThingRender'
 import io from 'socket.io-client'
 
 export default class extends Phaser.State {
@@ -14,6 +16,8 @@ export default class extends Phaser.State {
 
   create () {
     this.map = new Map({ game: this.game })
+    this.mapRender = new MapRender({ map: this.map })
+    this.thingRender = new ThingRender({ map: this.map })
 
     // @ TODO
     // sync map, spawns, movement, actions, kills with server
@@ -166,6 +170,7 @@ export default class extends Phaser.State {
     this.character.setDirection(dir)
 
     this.map.graphicsUpdate()
+    this.thingRender.graphicsUpdate()
   }
 
   render () {

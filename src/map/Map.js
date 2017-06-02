@@ -1,31 +1,18 @@
-import Phaser from 'phaser'
 import Defines from '../Defines'
+import EventsSubPub from '../Utils/EventsSubPub'
 
 export default class Map {
   constructor ({game}) {
     this.game = game
+    this.events = new EventsSubPub()
     this.tiles = []
     this.currentID = 0
 
-    this.floorGroup = this.game.add.group(0, 0, this.game)
     this.thingsGroup = this.game.add.group(0, 0, this.game)
+  }
 
-    let graphics = this.game.add.graphics(0, 0)
-    graphics.lineStyle(0.25, 0x000000, 0.5)
-    let width = this.getWidth()
-    let height = this.getHeight()
-    for (let x = 0; x < width; x++) {
-      for (let y = 0; y < height; y++) {
-        graphics.drawRect(
-          this.getTileStartX(x),
-          this.getTileStartY(y),
-          Defines.mapTileWidth,
-          Defines.mapTileHeight
-        )
-      }
-    }
-
-    this.floorGroup.add(graphics)
+  getEvents () {
+    return this.events
   }
 
   getMapXFromPixel (x) {
@@ -43,13 +30,13 @@ export default class Map {
 
   getWidth () {
     if (this._cache_getWidth === undefined) {
-      this._cache_getWidth = this.getMapXFromPixel(this.game.world.width - 1)
+      this._cache_getWidth = this.getMapXFromPixel(this.game.world.width)
     }
     return this._cache_getWidth
   }
   getHeight () {
     if (this._cache_getHeight === undefined) {
-      this._cache_getHeight = this.getMapYFromPixel(this.game.world.height - 1)
+      this._cache_getHeight = this.getMapYFromPixel(this.game.world.height)
     }
     return this._cache_getHeight
   }
@@ -68,9 +55,9 @@ export default class Map {
   }
 
   addThing (thing) {
-    let x = thing.getMapX()
-    let y = thing.getMapY()
-    let tile = this.getTile(x, y, true)
+    let mapX = thing.getMapX()
+    let mapY = thing.getMapY()
+    let tile = this.getTile(mapX, mapY, true)
 
     if (tile.things.indexOf(thing) === -1) {
       // only add if we are not already on this tile
@@ -82,7 +69,7 @@ export default class Map {
       }
     }
 
-    this.addTileGraphic(tile, x, y)
+    this.events.fire('addThing', { tile, thing, mapX, mapY })
   }
 
   getTile (mapX, mapY, createIfNone = false) {
@@ -135,15 +122,10 @@ export default class Map {
     }
     if (tile.things.length === 0) {
       // the tile is empty so let's delete it
-      if (tile.graphics !== null) {
-        // if we had a graphics cause it was a blocking tile, we want to
-        // destroy it also
-        tile.graphics.destroy()
-      }
       delete this.tiles[mapX][mapY]
     }
 
-    this.removeTileGraphic(tile)
+    this.events.fire('removeThing', { tile, thing, mapX, mapY })
   }
 
   updateStateThing (thing) {
@@ -307,40 +289,9 @@ export default class Map {
         })
       }
     }
-
-    this.thingsGroup.sort('y', Phaser.Group.SORT_ASCENDING)
   }
 
   getThingsGroup () {
     return this.thingsGroup
-  }
-
-  removeTileGraphic (tile) {
-    if (tile.things.length > 0 &&
-      tile.things[0].isBlocking()) {
-      return // it's still blocking so leave the graphic
-    }
-    if (tile.graphics) {
-      tile.graphics.clear()
-    }
-  }
-
-  addTileGraphic (tile, mapX, mapY) {
-    if (tile.graphics) {
-      // already exists
-      return
-    }
-    tile.graphics = this.game.add.graphics(0, 0)
-
-    this.floorGroup.add(tile.graphics)
-
-    tile.graphics.lineStyle(0.5, 0xFF0000, 0.75)
-
-    tile.graphics.drawRect(
-      this.getTileStartX(mapX),
-      this.getTileStartY(mapY),
-      Defines.mapTileWidth,
-      Defines.mapTileHeight
-    )
   }
 }

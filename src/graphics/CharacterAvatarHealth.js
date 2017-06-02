@@ -8,10 +8,10 @@ export default class CharacterAvatarHealth {
     }
 
     this.character = character
-    this.group = group
+    this.group = character.group
     this.text = game.add.text(0, -18, String(character.health), style)
     this.text.anchor.set(0.5)
-    group.add(this.text)
+    this.group.add(this.text)
   }
 
   stateUpdate () {

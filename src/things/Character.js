@@ -1,6 +1,5 @@
 import Thing from './Thing'
 import Defines from '../Defines'
-import CharacterAvatarHealth from '../graphics/CharacterAvatarHealth'
 import Attack from '../actions/Attack'
 
 /*
@@ -11,6 +10,7 @@ thing.json format
 export default class Character extends Thing {
   constructor ({ map, name, x, y, height, width }) {
     super({ map, name, x, y, height, width })
+    this.thingType = 'character'
     // where do we want to move?
     // vector
     this.movementX = 0 // -1, 0, or 1
@@ -33,17 +33,12 @@ export default class Character extends Thing {
     // game logic
     this.health = this.definition.startingHealth
     this.attackAction = new Attack({character: this, map})
-
-    this.avatarLife = new CharacterAvatarHealth(
-      {character: this, group: this.group, game: this.game}
-    )
   }
 
   destroy () {
     // take away our references to these so they will get garbage collected
     // and then we can get garbage collected to
     this.attackAction = null
-    this.avatarLife = null
     super.destroy()
   }
 
@@ -154,8 +149,6 @@ export default class Character extends Thing {
   }
 
   stateUpdate () {
-    this.avatarLife.stateUpdate()
-
     super.stateUpdate()
   }
 

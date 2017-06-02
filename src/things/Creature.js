@@ -8,6 +8,7 @@ thing.json format
 export default class Creature extends Character {
   constructor ({ map, name, x, y, height, width }) {
     super({ map, name, x, y, height, width })
+    this.thingType = 'creature'
     // current action time
     this.actionTime = Creature.randomRange(0, 100)
     // current action
