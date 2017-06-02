@@ -1,6 +1,6 @@
 import Thing from './Thing'
 import Defines from '../Defines'
-import CharacterAvatarHealth from '../sprites/CharacterAvatarHealth'
+import CharacterAvatarHealth from '../graphics/CharacterAvatarHealth'
 import Attack from '../actions/Attack'
 
 /*

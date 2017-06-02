@@ -1,6 +1,6 @@
-import Spriter from '../sprites/Spriter'
+import Spriter from '../graphics/Spriter'
 import Defines from '../Defines'
-import ThingAvatarName from '../sprites/ThingAvatarName'
+import ThingAvatarName from '../graphics/ThingAvatarName'
 
 /*
 thing.json format

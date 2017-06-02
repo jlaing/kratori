@@ -3016,7 +3016,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Spriter = __webpack_require__(/*! ../sprites/Spriter */ 152);
+var _Spriter = __webpack_require__(/*! ../graphics/Spriter */ 151);
 
 var _Spriter2 = _interopRequireDefault(_Spriter);
 
@@ -3024,7 +3024,7 @@ var _Defines = __webpack_require__(/*! ../Defines */ 51);
 
 var _Defines2 = _interopRequireDefault(_Defines);
 
-var _ThingAvatarName = __webpack_require__(/*! ../sprites/ThingAvatarName */ 153);
+var _ThingAvatarName = __webpack_require__(/*! ../graphics/ThingAvatarName */ 152);
 
 var _ThingAvatarName2 = _interopRequireDefault(_ThingAvatarName);
 
@@ -5257,7 +5257,7 @@ var _Defines = __webpack_require__(/*! ../Defines */ 51);
 
 var _Defines2 = _interopRequireDefault(_Defines);
 
-var _CharacterAvatarHealth = __webpack_require__(/*! ../sprites/CharacterAvatarHealth */ 151);
+var _CharacterAvatarHealth = __webpack_require__(/*! ../graphics/CharacterAvatarHealth */ 150);
 
 var _CharacterAvatarHealth2 = _interopRequireDefault(_CharacterAvatarHealth);
 
@@ -8591,6 +8591,233 @@ exports.default = Attack;
 /* 150 */
 /* unknown exports provided */
 /* all exports used */
+/*!***********************************************!*\
+  !*** ./src/graphics/CharacterAvatarHealth.js ***!
+  \***********************************************/
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var CharacterAvatarHealth = function () {
+  function CharacterAvatarHealth(_ref) {
+    var character = _ref.character,
+        group = _ref.group,
+        game = _ref.game;
+
+    _classCallCheck(this, CharacterAvatarHealth);
+
+    var style = {
+      font: '8pt Courier',
+      wordWrap: true,
+      wordWrapWidth: 22,
+      align: 'center'
+    };
+
+    this.character = character;
+    this.group = group;
+    this.text = game.add.text(0, -18, String(character.health), style);
+    this.text.anchor.set(0.5);
+    group.add(this.text);
+  }
+
+  _createClass(CharacterAvatarHealth, [{
+    key: 'stateUpdate',
+    value: function stateUpdate() {
+      this.text.text = String(this.character.health);
+    }
+  }]);
+
+  return CharacterAvatarHealth;
+}();
+
+exports.default = CharacterAvatarHealth;
+
+/***/ }),
+/* 151 */
+/* unknown exports provided */
+/* all exports used */
+/*!*********************************!*\
+  !*** ./src/graphics/Spriter.js ***!
+  \*********************************/
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/*
+animations json format
+[
+  {
+    name: 'animation_name'
+    frames: ['frame1', 'frame2']
+    rate: 5
+    loop: true
+  }
+]
+*/
+var Spriter = function () {
+  _createClass(Spriter, null, [{
+    key: 'getAnimationsAssetName',
+    value: function getAnimationsAssetName(name) {
+      return name + '.animations';
+    }
+  }, {
+    key: 'getAnimationsPath',
+    value: function getAnimationsPath(name) {
+      return 'assets/sprites/' + name + '_animations.json';
+    }
+  }, {
+    key: 'getAtlasPNGPath',
+    value: function getAtlasPNGPath(name) {
+      return 'assets/sprites/' + name + '.png';
+    }
+  }, {
+    key: 'getAtlasJSONPath',
+    value: function getAtlasJSONPath(name) {
+      return 'assets/sprites/' + name + '.json';
+    }
+  }, {
+    key: 'cache',
+    value: function cache(loader, name) {
+      loader.json(Spriter.getAnimationsAssetName(name), Spriter.getAnimationsPath(name));
+      loader.atlas(name, Spriter.getAtlasPNGPath(name), Spriter.getAtlasJSONPath(name));
+    }
+  }]);
+
+  function Spriter(_ref) {
+    var game = _ref.game,
+        name = _ref.name,
+        group = _ref.group;
+
+    _classCallCheck(this, Spriter);
+
+    this.game = game;
+    this.name = name;
+    this.group = group;
+    this.sprite = null;
+
+    this.sprite = this.addSprite();
+    // this.sprite.scale.setTo(2)
+    this.sprite.anchor.x = 0.5;
+    this.sprite.anchor.y = 0.7;
+
+    this.animationsData = this.loadAnimationsData();
+    this.animations = this.addAnimations();
+  }
+
+  _createClass(Spriter, [{
+    key: 'loadAnimationsData',
+    value: function loadAnimationsData() {
+      return this.game.cache.getJSON(Spriter.getAnimationsAssetName(this.name));
+    }
+  }, {
+    key: 'addSprite',
+    value: function addSprite() {
+      return this.group.create(0, 0, this.name);
+    }
+  }, {
+    key: 'addAnimations',
+    value: function addAnimations() {
+      var _this = this;
+
+      var animations = {};
+      this.animationsData.forEach(function (anim) {
+        animations[anim.name] = _this.sprite.animations.add(anim.name, anim.frames, anim.rate, anim.loop);
+      });
+      return animations;
+    }
+  }, {
+    key: 'playAnimation',
+    value: function playAnimation(name, onComplete, onCompleteContext) {
+      if (onComplete !== undefined) {
+        this.animations[name].onComplete.addOnce(onComplete, onCompleteContext);
+      }
+      this.animations[name].play();
+    }
+  }, {
+    key: 'kill',
+    value: function kill() {
+      this.sprite.kill();
+    }
+  }]);
+
+  return Spriter;
+}();
+
+exports.default = Spriter;
+
+/***/ }),
+/* 152 */
+/* unknown exports provided */
+/* all exports used */
+/*!*****************************************!*\
+  !*** ./src/graphics/ThingAvatarName.js ***!
+  \*****************************************/
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ThingAvatarName = function () {
+  function ThingAvatarName(_ref) {
+    var thing = _ref.thing,
+        group = _ref.group,
+        game = _ref.game;
+
+    _classCallCheck(this, ThingAvatarName);
+
+    var style = {
+      font: '8pt Courier',
+      wordWrap: true,
+      wordWrapWidth: 22,
+      align: 'center'
+    };
+
+    this.group = group;
+    this.text = game.add.text(0, -30, thing.name, style);
+    this.text.anchor.set(0.5);
+    group.add(this.text);
+  }
+
+  _createClass(ThingAvatarName, [{
+    key: 'stateUpdate',
+    value: function stateUpdate() {}
+  }]);
+
+  return ThingAvatarName;
+}();
+
+exports.default = ThingAvatarName;
+
+/***/ }),
+/* 153 */
+/* unknown exports provided */
+/* all exports used */
 /*!************************!*\
   !*** ./src/map/Map.js ***!
   \************************/
@@ -8995,233 +9222,6 @@ var Map = function () {
 exports.default = Map;
 
 /***/ }),
-/* 151 */
-/* unknown exports provided */
-/* all exports used */
-/*!**********************************************!*\
-  !*** ./src/sprites/CharacterAvatarHealth.js ***!
-  \**********************************************/
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var CharacterAvatarHealth = function () {
-  function CharacterAvatarHealth(_ref) {
-    var character = _ref.character,
-        group = _ref.group,
-        game = _ref.game;
-
-    _classCallCheck(this, CharacterAvatarHealth);
-
-    var style = {
-      font: '8pt Courier',
-      wordWrap: true,
-      wordWrapWidth: 22,
-      align: 'center'
-    };
-
-    this.character = character;
-    this.group = group;
-    this.text = game.add.text(0, -18, String(character.health), style);
-    this.text.anchor.set(0.5);
-    group.add(this.text);
-  }
-
-  _createClass(CharacterAvatarHealth, [{
-    key: 'stateUpdate',
-    value: function stateUpdate() {
-      this.text.text = String(this.character.health);
-    }
-  }]);
-
-  return CharacterAvatarHealth;
-}();
-
-exports.default = CharacterAvatarHealth;
-
-/***/ }),
-/* 152 */
-/* unknown exports provided */
-/* all exports used */
-/*!********************************!*\
-  !*** ./src/sprites/Spriter.js ***!
-  \********************************/
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/*
-animations json format
-[
-  {
-    name: 'animation_name'
-    frames: ['frame1', 'frame2']
-    rate: 5
-    loop: true
-  }
-]
-*/
-var Spriter = function () {
-  _createClass(Spriter, null, [{
-    key: 'getAnimationsAssetName',
-    value: function getAnimationsAssetName(name) {
-      return name + '.animations';
-    }
-  }, {
-    key: 'getAnimationsPath',
-    value: function getAnimationsPath(name) {
-      return 'assets/sprites/' + name + '_animations.json';
-    }
-  }, {
-    key: 'getAtlasPNGPath',
-    value: function getAtlasPNGPath(name) {
-      return 'assets/sprites/' + name + '.png';
-    }
-  }, {
-    key: 'getAtlasJSONPath',
-    value: function getAtlasJSONPath(name) {
-      return 'assets/sprites/' + name + '.json';
-    }
-  }, {
-    key: 'cache',
-    value: function cache(loader, name) {
-      loader.json(Spriter.getAnimationsAssetName(name), Spriter.getAnimationsPath(name));
-      loader.atlas(name, Spriter.getAtlasPNGPath(name), Spriter.getAtlasJSONPath(name));
-    }
-  }]);
-
-  function Spriter(_ref) {
-    var game = _ref.game,
-        name = _ref.name,
-        group = _ref.group;
-
-    _classCallCheck(this, Spriter);
-
-    this.game = game;
-    this.name = name;
-    this.group = group;
-    this.sprite = null;
-
-    this.sprite = this.addSprite();
-    // this.sprite.scale.setTo(2)
-    this.sprite.anchor.x = 0.5;
-    this.sprite.anchor.y = 0.7;
-
-    this.animationsData = this.loadAnimationsData();
-    this.animations = this.addAnimations();
-  }
-
-  _createClass(Spriter, [{
-    key: 'loadAnimationsData',
-    value: function loadAnimationsData() {
-      return this.game.cache.getJSON(Spriter.getAnimationsAssetName(this.name));
-    }
-  }, {
-    key: 'addSprite',
-    value: function addSprite() {
-      return this.group.create(0, 0, this.name);
-    }
-  }, {
-    key: 'addAnimations',
-    value: function addAnimations() {
-      var _this = this;
-
-      var animations = {};
-      this.animationsData.forEach(function (anim) {
-        animations[anim.name] = _this.sprite.animations.add(anim.name, anim.frames, anim.rate, anim.loop);
-      });
-      return animations;
-    }
-  }, {
-    key: 'playAnimation',
-    value: function playAnimation(name, onComplete, onCompleteContext) {
-      if (onComplete !== undefined) {
-        this.animations[name].onComplete.addOnce(onComplete, onCompleteContext);
-      }
-      this.animations[name].play();
-    }
-  }, {
-    key: 'kill',
-    value: function kill() {
-      this.sprite.kill();
-    }
-  }]);
-
-  return Spriter;
-}();
-
-exports.default = Spriter;
-
-/***/ }),
-/* 153 */
-/* unknown exports provided */
-/* all exports used */
-/*!****************************************!*\
-  !*** ./src/sprites/ThingAvatarName.js ***!
-  \****************************************/
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var ThingAvatarName = function () {
-  function ThingAvatarName(_ref) {
-    var thing = _ref.thing,
-        group = _ref.group,
-        game = _ref.game;
-
-    _classCallCheck(this, ThingAvatarName);
-
-    var style = {
-      font: '8pt Courier',
-      wordWrap: true,
-      wordWrapWidth: 22,
-      align: 'center'
-    };
-
-    this.group = group;
-    this.text = game.add.text(0, -30, thing.name, style);
-    this.text.anchor.set(0.5);
-    group.add(this.text);
-  }
-
-  _createClass(ThingAvatarName, [{
-    key: 'stateUpdate',
-    value: function stateUpdate() {}
-  }]);
-
-  return ThingAvatarName;
-}();
-
-exports.default = ThingAvatarName;
-
-/***/ }),
 /* 154 */
 /* unknown exports provided */
 /* all exports used */
@@ -9331,7 +9331,7 @@ var _Defines = __webpack_require__(/*! ../Defines */ 51);
 
 var _Defines2 = _interopRequireDefault(_Defines);
 
-var _Map = __webpack_require__(/*! ../map/Map */ 150);
+var _Map = __webpack_require__(/*! ../map/Map */ 153);
 
 var _Map2 = _interopRequireDefault(_Map);
 
