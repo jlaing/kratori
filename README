@@ -1,7 +1,9 @@
 To Do
 -----
--client update loop
--client move character
+-separate graphics from core code so can share with server
+  -make game states (client) do all the pre-loading (and figuring what needs to be loaded)
+    -later we will need to make this dynamic when the server starts sending what to load
+-add ability for server to load definition files (all non-graphics related assets)
 -server move character around
 -server have state of character
 -on connect send to client
