@@ -7,7 +7,7 @@ export default class ThingAvatarName {
       align: 'center'
     }
 
-    this.group = thing.group
+    this.group = group
     this.text = game.add.text(0, -30, thing.name, style)
     this.text.anchor.set(0.5)
     this.group.add(this.text)

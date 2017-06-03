@@ -1,6 +1,6 @@
-import Spriter from '../graphics/Spriter'
 import Defines from '../Defines'
 import EventsSubPub from '../Utils/EventsSubPub'
+import Spriter from '../graphics/Spriter'
 
 /*
 thing.json format
@@ -81,16 +81,6 @@ export default class Thing {
 
     this.currentState = null
 
-    // our sprites / animations
-    this.spriters = {}
-    this.currentSprite = null
-    this.currentAnimation = null
-
-    // create a graphics group
-    this.group = this.game.add.group(this.x, this.y, this.game)
-
-    this.map.getThingsGroup().add(this.group)
-
     // are we still alive? or should map remove us
     this.alive = true
 
@@ -102,10 +92,13 @@ export default class Thing {
     return this.events
   }
 
+  getCurrentStateName () {
+    return this.currentState
+  }
+
   destroy () {
     // take away our references to these so they will get garbage collected
     // and then we can get garbage collected to
-    this.group.destroy()
     this.events.fire('destroy', this)
   }
 
@@ -197,30 +190,12 @@ export default class Thing {
       return
     }
 
-    this.setSpriter(state.sprite)
-    this.setAnimation(state.animation, onComplete, onCompleteContext)
     this.currentState = stateName
-  }
-
-  setSpriter (sprite) {
-    if (this.currentSprite !== sprite) {
-      if (this.currentSprite !== null) {
-        // changing current sprite, we need to kill the existing one
-        this.killSpriter(this.currentSprite)
-        this.currentAnimation = null
-      }
-      if (!this.spriters[sprite]) {
-        this.initSpriter(sprite)
-      }
-      this.currentSprite = sprite
-    }
-  }
-
-  initSpriter (sprite) {
-    this.spriters[sprite] = new Spriter({
-      game: this.game,
-      name: sprite,
-      group: this.group
+    this.events.fire('stateChange', {
+      thing: this,
+      state,
+      onComplete,
+      onCompleteContext
     })
   }
 
@@ -230,20 +205,6 @@ export default class Thing {
 
   kill () {
     this.alive = false
-  }
-
-  killSpriter (sprite) {
-    // TODO this maybe should be destroy, not sure
-    this.spriters[sprite].kill()
-  }
-
-  setAnimation (animation, onComplete, completeContext) {
-    if (this.currentAnimation !== animation) {
-      // new animation or sprite, so play animation
-      this.spriters[this.currentSprite].playAnimation(
-        animation, onComplete, completeContext)
-      this.currentAnimation = animation
-    }
   }
 
   getState (stateName) {
@@ -294,11 +255,8 @@ export default class Thing {
         // we have our new pixel location
         this.setX(x)
         this.setY(y)
+        this.events.fire('positionChange', {thing: this, x, y})
       }
     }
-
-    // update our graphics to new location
-    this.group.x = this.x
-    this.group.y = this.y
   }
 }
