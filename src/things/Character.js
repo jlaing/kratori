@@ -152,7 +152,7 @@ export default class Character extends Thing {
     super.stateUpdate()
   }
 
-  graphicsUpdate () {
+  physicsUpdate () {
     let actualDY = this.y - this.lastY
     let actualDX = this.x - this.lastX
 
@@ -179,6 +179,6 @@ export default class Character extends Thing {
     this.lastX = this.x
     this.lastY = this.y
 
-    super.graphicsUpdate()
+    super.physicsUpdate()
   }
 }

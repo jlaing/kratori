@@ -169,8 +169,8 @@ export default class extends Phaser.State {
     this.character.setMovement(destX, destY)
     this.character.setDirection(dir)
 
-    this.map.graphicsUpdate()
-    this.thingRender.graphicsUpdate()
+    this.map.physicsUpdate()
+    this.thingRender.physicsUpdate()
   }
 
   render () {

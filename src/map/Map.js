@@ -270,7 +270,7 @@ export default class Map {
     }
   }
 
-  graphicsUpdate () {
+  physicsUpdate () {
     let width = this.getWidth()
     let height = this.getHeight()
     for (let x = 0; x < width; x++) {
@@ -285,7 +285,7 @@ export default class Map {
           continue
         }
         tile.things.forEach((thing) => {
-          thing.graphicsUpdate()
+          thing.physicsUpdate()
         })
       }
     }

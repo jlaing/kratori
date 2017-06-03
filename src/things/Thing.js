@@ -254,7 +254,7 @@ export default class Thing {
     this.events.fire('stateUpdate', this)
   }
 
-  graphicsUpdate () {
+  physicsUpdate () {
     let speed = this.getSpeed()
     if (speed !== 0) {
       let x = this.getX()

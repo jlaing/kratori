@@ -56,7 +56,7 @@ export default class ThingRender {
     }
   }
 
-  graphicsUpdate () {
+  physicsUpdate () {
     this.group.sort('y', Phaser.Group.SORT_ASCENDING)
   }
 }
