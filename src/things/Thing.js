@@ -1,6 +1,5 @@
 import Defines from '../Defines'
 import EventsSubPub from '../Utils/EventsSubPub'
-import Spriter from '../graphics/Spriter'
 
 /*
 thing.json format
@@ -10,44 +9,11 @@ set/getMapDestinationX,Y
 */
 
 export default class Thing {
-  static getDefinitionAssetName (name) {
-    return name + '.thing'
-  }
+  constructor ({ definition, map, name, x, y, height, width }) {
+    // load from our JSON
+    this.definition = definition
 
-  static getDefinitionPath (name) {
-    return 'assets/things/' + name + '.json'
-  }
-
-  static cacheDefinition (loader, name) {
-    loader.json(
-      Thing.getDefinitionAssetName(name),
-      Thing.getDefinitionPath(name)
-    )
-  }
-
-  static cacheAssets (loader, name) {
-    let definition = Thing.loadDefinition(loader, name)
-    let sprites = []
-    Object.keys(definition.states).forEach((state) => {
-      if (
-        definition.states[state].sprite &&
-        !sprites.includes(definition.states[state].sprite)
-      ) {
-        sprites.push(definition.states[state].sprite)
-      }
-    })
-    sprites.forEach((sprite) => {
-      Spriter.cache(loader, sprite)
-    })
-  }
-
-  static loadDefinition (game, name) {
-    return game.cache.getJSON(Thing.getDefinitionAssetName(name))
-  }
-
-  constructor ({ map, name, x, y, height, width }) {
     this.map = map
-    this.game = map.game
     this.name = name
     this.thingType = 'thing'
     this.events = new EventsSubPub()
@@ -75,9 +41,6 @@ export default class Thing {
     }
     this.width = width
     this.height = height
-
-    // load from our JSON
-    this.definition = Thing.loadDefinition(this.game, name)
 
     this.currentState = null
 
@@ -171,10 +134,6 @@ export default class Thing {
     return this.blocking
   }
 
-  loadDefinition () {
-    return this.game.cache.getJSON(Thing.getDefinitionAssetName(this.name))
-  }
-
   setDefaultState () {
     this.setState(this.definition.defaultState)
   }
@@ -215,7 +174,7 @@ export default class Thing {
     this.events.fire('stateUpdate', this)
   }
 
-  physicsUpdate () {
+  physicsUpdate (physicsTimeElapsed) {
     let speed = this.getSpeed()
     if (speed !== 0) {
       let x = this.getX()
@@ -229,8 +188,8 @@ export default class Thing {
         // speed is expressed in map tiles per second
         // so speed in pixels is mapTileWidth/Height * speed
         // scale the speed by fractional seconds that has passed since last update
-        let speedX = speed * Defines.mapTileWidth * this.game.time.physicsElapsed
-        let speedY = speed * Defines.mapTileHeight * this.game.time.physicsElapsed
+        let speedX = speed * Defines.mapTileWidth * physicsTimeElapsed
+        let speedY = speed * Defines.mapTileHeight * physicsTimeElapsed
 
         // make sure we aren't moving faster than our movement speed
         if (Math.abs(dx) > speedX) {

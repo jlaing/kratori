@@ -41,7 +41,16 @@ export default class Main {
       }
     })
 
-    clientSocket.emit('creature', { creature: [{ x: 15, y: 15 }, { x: 6, y: 6 }] })
+    let creatures = []
+    for (let y = 0; y < 30; y++) {
+      for (let x = 0; x < 22; x++) {
+        creatures.push({ x, y })
+      }
+    }
+
+    clientSocket.emit('creature', {
+      creature: creatures
+    })
   }
 
   loopScheduleNext () {

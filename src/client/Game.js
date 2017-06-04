@@ -7,6 +7,7 @@ import Map from '../map/Map'
 import MapRender from '../graphics/MapRender'
 import ThingRender from '../graphics/ThingRender'
 import io from 'socket.io-client'
+import AssetLoader from '../client/AssetLoader'
 
 export default class extends Phaser.State {
   init () {}
@@ -16,8 +17,8 @@ export default class extends Phaser.State {
 
   create () {
     this.map = new Map({ game: this.game })
-    this.mapRender = new MapRender({ map: this.map })
-    this.thingRender = new ThingRender({ map: this.map })
+    this.mapRender = new MapRender({ map: this.map, game: this.game })
+    this.thingRender = new ThingRender({ map: this.map, game: this.game })
 
     // @ TODO
     // sync map, spawns, movement, actions, kills with server
@@ -61,6 +62,7 @@ export default class extends Phaser.State {
       y += 1
     }
     this.character = new Character({
+      definition: AssetLoader.loadDefinition(this.game, 'character'),
       map: this.map,
       name: 'character',
       x: x,
@@ -90,6 +92,7 @@ export default class extends Phaser.State {
         console.log('creature received')
         if (!this.map.isBlocked(creature.x, creature.y)) {
           let log = new Creature({
+            definition: AssetLoader.loadDefinition(this.game, 'log'),
             map: this.map,
             name: 'log',
             x: creature.x,
@@ -169,8 +172,8 @@ export default class extends Phaser.State {
     this.character.setMovement(destX, destY)
     this.character.setDirection(dir)
 
-    this.map.physicsUpdate()
-    this.thingRender.physicsUpdate()
+    this.map.physicsUpdate(this.game.time.physicsElapsed)
+    this.thingRender.physicsUpdate(this.game.time.physicsElapsed)
   }
 
   render () {

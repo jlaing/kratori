@@ -1,14 +1,12 @@
 import Defines from '../Defines'
 import EventsSubPub from '../Utils/EventsSubPub'
+import config from '../config'
 
 export default class Map {
   constructor ({game}) {
-    this.game = game
     this.events = new EventsSubPub()
     this.tiles = []
     this.currentID = 0
-
-    this.thingsGroup = this.game.add.group(0, 0, this.game)
   }
 
   getEvents () {
@@ -30,21 +28,21 @@ export default class Map {
 
   getWidth () {
     if (this._cache_getWidth === undefined) {
-      this._cache_getWidth = this.getMapXFromPixel(this.game.world.width)
+      this._cache_getWidth = this.getMapXFromPixel(config.gameWidth)
     }
     return this._cache_getWidth
   }
   getHeight () {
     if (this._cache_getHeight === undefined) {
-      this._cache_getHeight = this.getMapYFromPixel(this.game.world.height)
+      this._cache_getHeight = this.getMapYFromPixel(config.gameHeight)
     }
     return this._cache_getHeight
   }
   getCenterX () {
-    return this.getMapXFromPixel(this.game.world.centerX)
+    return this.getMapXFromPixel(Math.floor(config.gameWidth / 2))
   }
   getCenterY () {
-    return this.getMapYFromPixel(this.game.world.centerY)
+    return this.getMapYFromPixel(Math.floor(config.gameHeight / 2))
   }
 
   getTileStartX (mapX) {
@@ -270,7 +268,7 @@ export default class Map {
     }
   }
 
-  physicsUpdate () {
+  physicsUpdate (physicsTimeElapsed) {
     let width = this.getWidth()
     let height = this.getHeight()
     for (let x = 0; x < width; x++) {
@@ -285,7 +283,7 @@ export default class Map {
           continue
         }
         tile.things.forEach((thing) => {
-          thing.physicsUpdate()
+          thing.physicsUpdate(physicsTimeElapsed)
         })
       }
     }

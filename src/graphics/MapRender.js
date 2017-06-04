@@ -1,9 +1,9 @@
 import Defines from '../Defines'
 
 export default class MapRender {
-  constructor ({map}) {
+  constructor ({map, game}) {
     this.map = map
-    this.game = map.game
+    this.game = game
 
     map.getEvents().listen('removeThing', this.removeTileGraphic.bind(this))
     map.getEvents().listen('addThing', this.addTileGraphic.bind(this))

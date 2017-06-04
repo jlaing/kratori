@@ -2,9 +2,9 @@ import 'pixi'
 import 'p2'
 import Phaser from 'phaser'
 
-import BootState from './states/Boot'
-import SplashState from './states/Splash'
-import GameState from './states/Game'
+import BootState from './client/Boot'
+import SplashState from './client/Splash'
+import GameState from './client/Game'
 
 import config from './config'
 

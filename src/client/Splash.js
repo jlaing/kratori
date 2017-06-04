@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import Thing from '../things/Thing'
+import AssetLoader from '../client/AssetLoader'
 
 import config from '../config'
 
@@ -14,9 +14,7 @@ export default class extends Phaser.State {
 
     this.load.setPreloadSprite(this.loaderBar)
 
-    config.load.things.forEach((thing) => {
-      Thing.cacheAssets(this.load, thing)
-    })
+    AssetLoader.loadThingAssets(this.load, config)
   }
 
   create () {

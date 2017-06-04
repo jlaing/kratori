@@ -4,9 +4,9 @@ import ThingAvatarName from '../graphics/ThingAvatarName'
 import Spriter from '../graphics/Spriter'
 
 export default class ThingRender {
-  constructor ({map}) {
+  constructor ({map, game}) {
     this.map = map
-    this.game = map.game
+    this.game = game
 
     this.group = this.game.add.group(0, 0, this.game)
 
@@ -81,7 +81,7 @@ export default class ThingRender {
     }
   }
 
-  physicsUpdate () {
+  physicsUpdate (physicsTimeElapsed) {
     this.group.sort('y', Phaser.Group.SORT_ASCENDING)
   }
 

@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import Thing from '../things/Thing'
+import AssetLoader from '../client/AssetLoader'
 
 import config from '../config'
 
@@ -12,9 +12,7 @@ export default class extends Phaser.State {
     this.load.image('loaderBg', './assets/images/loader-bg.png')
     this.load.image('loaderBar', './assets/images/loader-bar.png')
 
-    config.load.things.forEach((thing) => {
-      Thing.cacheDefinition(this.load, thing)
-    })
+    AssetLoader.loadThingsDefinitions(this.load, config)
   }
 
   render () {

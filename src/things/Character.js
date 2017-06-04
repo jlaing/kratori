@@ -8,8 +8,8 @@ thing.json format
 */
 
 export default class Character extends Thing {
-  constructor ({ map, name, x, y, height, width }) {
-    super({ map, name, x, y, height, width })
+  constructor ({ definition, map, name, x, y, height, width }) {
+    super({ definition, map, name, x, y, height, width })
     this.thingType = 'character'
     // where do we want to move?
     // vector
@@ -152,7 +152,7 @@ export default class Character extends Thing {
     super.stateUpdate()
   }
 
-  physicsUpdate () {
+  physicsUpdate (physicsTimeElapsed) {
     let actualDY = this.y - this.lastY
     let actualDX = this.x - this.lastX
 
@@ -179,6 +179,6 @@ export default class Character extends Thing {
     this.lastX = this.x
     this.lastY = this.y
 
-    super.physicsUpdate()
+    super.physicsUpdate(physicsTimeElapsed)
   }
 }
