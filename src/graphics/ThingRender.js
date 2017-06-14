@@ -26,28 +26,28 @@ export default class ThingRender {
 
     thing.render = {}
 
+    // create a graphics group
+    thing.render.group =
+      this.game.add.group(0, 0, this.game)
+
     if (thing.thingType === 'character' || thing.thingType === 'creature') {
-      console.log('add character')
+      console.log('add character/creature')
       // add the avatarLife to hover over character
       thing.render.avatarLife = new CharacterAvatarHealth(
-        { character: thing, group: this.group, game: this.game }
+        { character: thing, group: thing.render.group, game: this.game }
       )
     }
 
     // add the avatar name to hover over thing
     console.log('add thing')
     thing.render.avatarName = new ThingAvatarName(
-      { thing: thing, group: this.group, game: this.game }
+      { thing: thing, group: thing.render.group, game: this.game }
     )
 
     // our sprites / animations
     thing.render.spriters = {}
     thing.render.currentSprite = null
     thing.render.currentAnimation = null
-
-    // create a graphics group
-    thing.render.group =
-      this.game.add.group(0, 0, this.game)
 
     // add to our group
     this.group.add(thing.render.group)
