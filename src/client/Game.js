@@ -4,6 +4,8 @@ import Character from '../things/Character'
 import Creature from '../things/Creature'
 import Defines from '../Defines'
 import Map from '../map/Map'
+import Input from '../client/Input'
+import CharacterInputCommand from '../client/CharacterInputCommand'
 import MapRender from '../graphics/MapRender'
 import ThingRender from '../graphics/ThingRender'
 import io from 'socket.io-client'
@@ -16,9 +18,21 @@ export default class extends Phaser.State {
   }
 
   create () {
-    this.map = new Map({ game: this.game })
+    this.input = new Input({game: this.game})
+    this.characterInput = new CharacterInputCommand({input: this.input})
+
+    this.characterInput.getEvents().listen(
+      'inputChange', ({x, y, dir, run, attack}) => {
+        console.log('input change')
+      })
+
+    this.map = new Map()
     this.mapRender = new MapRender({ map: this.map, game: this.game })
     this.thingRender = new ThingRender({ map: this.map, game: this.game })
+
+    // @ TODO
+    // take 'input changes' and send those to the server
+    // have server make logs move and send movement to client
 
     // @ TODO
     // sync map, spawns, movement, actions, kills with server
@@ -52,26 +66,6 @@ export default class extends Phaser.State {
     // @ TODO
     // make so you can select controlled units in mass and direct
 
-    // create our main character
-    // @ TODO
-    // use some sort of position generator for this
-    let x = this.map.getCenterX()
-    let y = this.map.getCenterY()
-    while (this.map.isBlocked(x, y)) {
-      x += 1
-      y += 1
-    }
-    this.character = new Character({
-      definition: AssetLoader.loadDefinition(this.game, 'character'),
-      map: this.map,
-      name: 'character',
-      x: x,
-      y: y,
-      height: 22,
-      width: 16
-    })
-    this.map.addThing(this.character)
-
     let socket = io('http://localhost:4000')
     socket.on('connect', function () {
       console.log('got conected')
@@ -86,6 +80,24 @@ export default class extends Phaser.State {
     socket.on('onlog', function (data) {
       console.log('got log: ' + data.log)
     })
+    socket.on('character', function (character) {
+      console.log(character)
+      console.log('character received')
+      if (!this.map.isBlocked(character.x, character.y)) {
+        this.character = new Character({
+          definition: AssetLoader.loadDefinition(this.game, 'character'),
+          map: this.map,
+          name: 'character',
+          x: character.x,
+          y: character.y,
+          height: 22,
+          width: 16
+        })
+        this.characterInput.setCharacter(this.character)
+        this.map.addThing(this.character)
+        console.log('character added')
+      }
+    }.bind(this))
     socket.on('creature', function (data) {
       console.log(data)
       data.creature.forEach((creature) => {
@@ -138,46 +150,13 @@ export default class extends Phaser.State {
       this.startStateLoop()
     }
 
-    let destX = 0
-    let destY = 0
-    let dir = this.character.getDirection()
-    if (this.game.input.keyboard.isDown(Phaser.KeyCode.S)) {
-      destY++
-      dir = 'down'
-    }
-    if (this.game.input.keyboard.isDown(Phaser.KeyCode.W)) {
-      destY--
-      dir = 'up'
-    }
-    if (this.game.input.keyboard.isDown(Phaser.KeyCode.A)) {
-      destX--
-      dir = 'left'
-    }
-    if (this.game.input.keyboard.isDown(Phaser.KeyCode.D)) {
-      destX++
-      dir = 'right'
-    }
-    if (destX !== 0 || destY !== 0) {
-      if (this.game.input.keyboard.isDown(Phaser.KeyCode.SHIFT)) {
-        this.character.setRun(true)
-      } else {
-        this.character.setRun(false)
-      }
-    }
-    if (this.game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR)) {
-      this.character.setAttack(true)
-    } else {
-      this.character.setAttack(false)
-    }
-    this.character.setMovement(destX, destY)
-    this.character.setDirection(dir)
-
+    this.input.physicsUpdate(this.game.time.physicsElapsed)
     this.map.physicsUpdate(this.game.time.physicsElapsed)
     this.thingRender.physicsUpdate(this.game.time.physicsElapsed)
   }
 
   render () {
-    if (__DEV__) {
+    if (__DEV__ && this.character) {
       // this.game.debug.spriteInfo(this.character.spriters[this.character.name].sprite, 32, 32)
       let x = Math.floor((this.character.x / Defines.mapTileWidth))
       let y = Math.floor((this.character.y / Defines.mapTileHeight))

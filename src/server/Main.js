@@ -1,3 +1,5 @@
+import Map from '../map/Map'
+
 export default class Main {
   constructor (io) {
     this.io = io
@@ -41,9 +43,18 @@ export default class Main {
       }
     })
 
+    let map = new Map()
+    let x = map.getCenterX()
+    let y = map.getCenterY()
+    while (map.isBlocked(x, y)) {
+      x += 1
+      y += 1
+    }
+    clientSocket.emit('character', { x, y })
+
     let creatures = []
-    for (let y = 0; y < 30; y++) {
-      for (let x = 0; x < 22; x++) {
+    for (y = 0; y < 3; y++) {
+      for (x = 0; x < 3; x++) {
         creatures.push({ x, y })
       }
     }

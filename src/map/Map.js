@@ -3,7 +3,7 @@ import EventsSubPub from '../Utils/EventsSubPub'
 import config from '../config'
 
 export default class Map {
-  constructor ({game}) {
+  constructor () {
     this.events = new EventsSubPub()
     this.tiles = []
     this.currentID = 0
